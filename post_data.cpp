@@ -201,6 +201,7 @@ void post_data() {
     Json::Reader reader;
     Json::Value root;
     if(!reader.parse(ifs, root, false)) {
+        cout << "can not find .config file" << endl;
         exit(1);
     }
     string url = root["url"].asString();
