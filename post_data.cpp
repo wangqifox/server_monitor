@@ -3,6 +3,8 @@
 #include <unistd.h>
 #include <sstream>
 #include <curl/curl.h>
+#include <fstream>
+#include <cstring>
 
 #include "post_data.h"
 #include "cpu.h"
@@ -10,7 +12,30 @@
 #include "vmstat.h"
 #include "netstat.h"
 #include "utils.h"
+#include "json/json.h"
 using namespace std;
+
+
+struct url_data {
+    size_t size;
+    char *data;
+};
+
+size_t write_data(void *ptr, size_t size, size_t nmemb, struct url_data *data) {
+    size_t n = size * nmemb;
+    free(data->data);
+    data->data = (char*) malloc(sizeof(char)*(n+1));
+    if(!data->data) {
+        cout << "Failed to allocate memory" << endl;
+        return 0;
+    }
+    memcpy(data->data, ptr, n);
+    data->data[n] = '\0';
+
+    string str(data->data);
+    cout << str << endl;
+    return n;
+}
 
 void post(const char * url, string project_key, string data) {
     CURL *curl;
@@ -23,6 +48,11 @@ void post(const char * url, string project_key, string data) {
         curl_easy_setopt(curl, CURLOPT_URL, url);
         string str("project_key="+project_key+"&data="+data);
         curl_easy_setopt(curl, CURLOPT_POSTFIELDS, str.c_str());
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
+        struct url_data urldata;
+        urldata.size = 0;
+        urldata.data = NULL;
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &urldata);
         res = curl_easy_perform(curl);
         // cout << res << endl;
         curl_easy_cleanup(curl);
@@ -165,7 +195,21 @@ Json::Value* ServerData::net_info() {
 }
 
 void post_data() {
-    ServerData serverData;
+    ifstream ifs;
+    ifs.open(".config");
+
+    Json::Reader reader;
+    Json::Value root;
+    if(!reader.parse(ifs, root, false)) {
+        exit(1);
+    }
+    string url = root["url"].asString();
+    string key = root["key"].asString();
+
+    cout << url << endl;
+    cout << key << endl;
+
+    ServerData serverData(url,  key);
     while(true) {
         Json::Value* cpu_info = serverData.cpu_info();
         Json::Value* mem_info = serverData.mem_info();

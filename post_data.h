@@ -27,10 +27,10 @@ private:
     string project_key;
     string post_url;
 public:
-    ServerData():cpu_before(NULL),vmstat_before(NULL),netstat_before(NULL){
+    ServerData(string url, string key):cpu_before(NULL),vmstat_before(NULL),netstat_before(NULL){
         page_size = getPageSize();
-        project_key = "tars";
-        post_url = "http://tars.nie.netease.com:8282/api/perfs";
+        project_key = key;
+        post_url = url;
     }
     virtual ~ServerData(){
         delete cpu_before;
