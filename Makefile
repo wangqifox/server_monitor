@@ -2,8 +2,8 @@ CC=g++
 CPPFLAGS=-std=c++11
 LDFLAGS=-pthread
 
-main : main.o utils.o proc_main.o post_data.o proc_stat.o proc_meminfo.o proc_vmstat.o proc_netstat.o data.o cpu.o meminfo.o vmstat.o netstat.o
-	$(CC) $(LDFLAGS) -o $@ $^
+monitor : main.o utils.o proc_main.o post_data.o proc_stat.o proc_meminfo.o proc_vmstat.o proc_netstat.o data.o cpu.o meminfo.o vmstat.o netstat.o libjson.a
+	$(CC) $(LDFLAGS) -o $@ $^ -lcurl
 
 main.o : main.cpp
 	$(CC) $(CPPFLAGS) -o $@ -c $^
@@ -35,7 +35,7 @@ netstat.o : netstat.cpp
 	$(CC) $(CPPFLAGS) -o $@ -c $^
 
 .PHONY:
-	clean
+	clean libjson.a
 
 clean:
-	rm main *.o
+	rm monitor *.o

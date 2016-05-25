@@ -4,6 +4,8 @@
 #include <time.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <sstream>
+#include <iomanip>
 
 // #include <boost/format.hpp>
 // #include <boost/algorithm/string.hpp>
@@ -43,4 +45,22 @@ string runCommand(const char* cmd) {
     }
     pclose(in);
     return result;
+}
+
+double doubleSetPrecision(double num, int precision) {
+    stringstream ss;
+    ss << fixed << setprecision(precision) << num;
+    ss >> num;
+    return num;
+}
+
+string doubleTostring(double num, int precision) {
+    stringstream ss;
+    ss << fixed << setprecision(precision) << num;
+    return ss.str();
+}
+
+int getPageSize() {
+    string PAGE_SIZE = runCommand("getconf PAGE_SIZE");
+    return stoul(PAGE_SIZE);
 }

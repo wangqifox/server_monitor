@@ -5,6 +5,8 @@
 #include "vmstat.h"
 #include "netstat.h"
 
+#include "utils.h"
+
 using namespace std;
 
 queue<Cpu> cpu_queue;

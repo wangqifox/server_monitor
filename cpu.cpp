@@ -63,14 +63,16 @@ ostream& operator<< (ostream &os, Cpu &cpu) {
             << "procs_blocked: " << cpu.procs_blocked << endl;
     }
 
-vector<CpuRate> cpuRate(const Cpu &cpu1, const Cpu &cpu2) {
+vector<CpuRate> cpuRate(const Cpu& cpu1, const Cpu& cpu2) {
     vector<CpuRate> cpuRateVec;
     for(size_t i = 0; i < cpu1.cpu.size(); i++) {
         CpuRate cpuRate;
         CpuTime cpuTime1 = cpu1.cpu[i];
         CpuTime cpuTime2 = cpu2.cpu[i];
+        // cout << cpuTime1 << endl;
+        // cout << cpuTime2 << endl;
         CpuTime cpuTimeDelta = cpuTime2 - cpuTime1;
-        cout << cpuTimeDelta << endl;
+        // cout << cpuTimeDelta << endl;
         unsigned long long sum = cpuTimeDelta.user 
             + cpuTimeDelta.nice 
             + cpuTimeDelta.system 
