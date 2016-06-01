@@ -5,6 +5,7 @@
 #include <curl/curl.h>
 #include <fstream>
 #include <cstring>
+#include <thread>
 
 #include "post_data.h"
 #include "cpu.h"
@@ -15,13 +16,7 @@
 #include "json/json.h"
 using namespace std;
 
-
-struct url_data {
-    size_t size;
-    char *data;
-};
-
-size_t write_data(void *ptr, size_t size, size_t nmemb, struct url_data *data) {
+size_t ServerData::write_data(void *ptr, size_t size, size_t nmemb, url_data *data) {
     size_t n = size * nmemb;
     free(data->data);
     data->data = (char*) malloc(sizeof(char)*(n+1));
@@ -33,11 +28,11 @@ size_t write_data(void *ptr, size_t size, size_t nmemb, struct url_data *data) {
     data->data[n] = '\0';
 
     string str(data->data);
-    cout << str << endl;
+    // cout << str << endl;
     return n;
 }
 
-void post(const char * url, string project_key, string data) {
+void ServerData::post(const char * url, string data) {
     CURL *curl;
     CURLcode res;
 
@@ -46,10 +41,10 @@ void post(const char * url, string project_key, string data) {
     curl = curl_easy_init();
     if(curl) {
         curl_easy_setopt(curl, CURLOPT_URL, url);
-        string str("project_key="+project_key+"&data="+data);
+        string str("project_key="+project_key+"&"+"data="+data);
         curl_easy_setopt(curl, CURLOPT_POSTFIELDS, str.c_str());
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
-        struct url_data urldata;
+        url_data urldata;
         urldata.size = 0;
         urldata.data = NULL;
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &urldata);
@@ -60,57 +55,114 @@ void post(const char * url, string project_key, string data) {
     curl_global_cleanup();
 }
 
-Json::Value* ServerData::cpu_info() {
+void ServerData::add_cpu(Cpu& cpu) {
+    unique_lock<mutex> lock(cpu_queue_mtx);
+    cpu_queue.push(cpu);
+    lock.unlock();
+    cpu_queue_not_empty.notify_all();
+    
+}
+
+void ServerData::add_meminfo(MemInfo& meminfo) {
+    unique_lock<mutex> lock(memInfo_queue_mtx);
+    memInfo_queue.push(meminfo);
+    lock.unlock();
+    memInfo_queue_not_empty.notify_all();
+    
+    
+}
+
+void ServerData::add_vmstat(Vmstat& vmstat) {
+    unique_lock<mutex> lock(vmstat_queue_mtx);
+    vmstat_queue.push(vmstat);
+    lock.unlock();
+    vmstat_queue_not_empty.notify_all();
+    
+    
+}
+
+void ServerData::add_netstat(Netstat& netstat) {
+    unique_lock<mutex> lock(netstat_queue_mtx);
+    netstat_queue.push(netstat);
+    lock.unlock();
+    netstat_queue_not_empty.notify_all();
+    
+    
+}
+
+
+void ServerData::post_cpu() {
     Json::Value* root = NULL;
+    unique_lock<mutex> lock(cpu_queue_mtx);
+    if(cpu_queue.empty()) {
+        cpu_queue_not_empty.wait(lock);
+        lock.unlock();
+    } else {
+        lock.unlock();
+    }
+    
     if(!cpu_queue.empty()){
+        unique_lock<mutex> lock(cpu_queue_mtx);
         Cpu cpu = cpu_queue.front();
+        // cout << "cpu " << cpu << endl;
         cpu_queue.pop();
+        lock.unlock();
 
         if(cpu_before == NULL) {
             cpu_before = new Cpu();
             *cpu_before = cpu;
-            return NULL;
-        }
-
-        vector<CpuRate> cpuRateVec = cpuRate(*cpu_before, cpu);
+        } else {
+            vector<CpuRate> cpuRateVec = cpuRate(*cpu_before, cpu);
         
-        root = new Json::Value();
-        (*root)["time"] = tostring(cpu.time);
-        for(CpuRate cpuRate : cpuRateVec){
-            Json::Value cpu;
-            cpu["id"] = cpuRate.id;
-            cpu["total"] = doubleTostring(cpuRate.total*100, 2);
-            cpu["user"] = doubleTostring(cpuRate.user*100, 2);
-            cpu["nice"] = doubleTostring(cpuRate.nice*100, 2);
-            cpu["system"] = doubleTostring(cpuRate.system*100, 2);
-            cpu["idle"] = doubleTostring(cpuRate.idle*100, 2);
-            cpu["iowait"] = doubleTostring(cpuRate.iowait*100, 2);
-            cpu["irq"] = doubleTostring(cpuRate.irq*100, 2);
-            cpu["softirq"] = doubleTostring(cpuRate.softirq*100, 2);
-            cpu["steal"] = doubleTostring(cpuRate.steal*100, 2);
-            cpu["guest"] = doubleTostring(cpuRate.guest*100, 2);
-            cpu["guest_nice"] = doubleTostring(cpuRate.guest_nice*100, 2);
-            (*root)[cpuRate.id] = cpu;
+            root = new Json::Value();
+            (*root)["time"] = tostring(cpu.time);
+            for(CpuRate cpuRate : cpuRateVec){
+                Json::Value cpu;
+                cpu["id"] = cpuRate.id;
+                cpu["total"] = doubleTostring(cpuRate.total*100, 2);
+                cpu["user"] = doubleTostring(cpuRate.user*100, 2);
+                cpu["nice"] = doubleTostring(cpuRate.nice*100, 2);
+                cpu["system"] = doubleTostring(cpuRate.system*100, 2);
+                cpu["idle"] = doubleTostring(cpuRate.idle*100, 2);
+                cpu["iowait"] = doubleTostring(cpuRate.iowait*100, 2);
+                cpu["irq"] = doubleTostring(cpuRate.irq*100, 2);
+                cpu["softirq"] = doubleTostring(cpuRate.softirq*100, 2);
+                cpu["steal"] = doubleTostring(cpuRate.steal*100, 2);
+                cpu["guest"] = doubleTostring(cpuRate.guest*100, 2);
+                cpu["guest_nice"] = doubleTostring(cpuRate.guest_nice*100, 2);
+                (*root)[cpuRate.id] = cpu;
+            }
+            cpu_before = new Cpu();
+            *cpu_before = cpu;
+
+            Json::FastWriter writer;
+            string json_str = writer.write(*root);
+            // cout << json_str << endl;
+
+            string url = post_url + "/cpu";
+            post(url.c_str(), json_str);
         }
-        cpu_before = new Cpu();
-        *cpu_before = cpu;
-
-        Json::FastWriter writer;
-        string json_str = writer.write(*root);
-        cout << json_str << endl;
-
-        string url = post_url + "/cpu";
-        post(url.c_str(), project_key, json_str);
     }
-    return root;
+    
 }
 
-Json::Value* ServerData::mem_info() {
+void ServerData::post_meminfo() {
     Json::Value* mem = NULL;
+    unique_lock<mutex> lock(memInfo_queue_mtx);
+    if(memInfo_queue.empty()) {
+        memInfo_queue_not_empty.wait(lock);
+        lock.unlock();
+    } else {
+        lock.unlock();
+    }
+
     if(!memInfo_queue.empty()){
+        unique_lock<mutex> lock(memInfo_queue_mtx);
         MemInfo meminfo = memInfo_queue.front();
         // cout << meminfo << endl;
         memInfo_queue.pop();
+        lock.unlock();
+
         mem = new Json::Value();
         (*mem)["time"] = tostring(meminfo.time);
         (*mem)["memTotal"] = tostring(meminfo.memTotal);
@@ -122,30 +174,39 @@ Json::Value* ServerData::mem_info() {
 
         Json::FastWriter writer;
         string json_str = writer.write(*mem);
-        cout << json_str << endl;
+        // cout << json_str << endl;
 
         string url = post_url + "/mem";
-        post(url.c_str(), project_key, json_str);
+        post(url.c_str(), json_str);
     }
-    return mem;
+    
 }
 
-Json::Value* ServerData::disk_info() {
+void ServerData::post_vmstat() {
     Json::Value* disk = NULL;
+    unique_lock<mutex> lock(vmstat_queue_mtx);
+    if(vmstat_queue.empty()) {
+        vmstat_queue_not_empty.wait(lock);
+        lock.unlock();
+    } else {
+        lock.unlock();
+    }
+
     if(!vmstat_queue.empty()){
+        unique_lock<mutex> lock(vmstat_queue_mtx);
         Vmstat vmstat = vmstat_queue.front();
         // cout << vmstat << endl;
         vmstat_queue.pop();
+        lock.unlock();
 
         if(vmstat_before == NULL) {
             vmstat_before = new Vmstat();
             *vmstat_before = vmstat;
-            return NULL;
+            return;
         }
 
         disk = new Json::Value();
         Vmstat vmstatDelta = vmstat - *vmstat_before;
-        // cout << vmstatDelta << endl;
         (*disk)["time"] = tostring(vmstat.time);
         (*disk)["read"] = tostring(vmstatDelta.pgpgin * page_size);
         (*disk)["write"] = tostring(vmstatDelta.pgpgout * page_size);
@@ -155,24 +216,34 @@ Json::Value* ServerData::disk_info() {
 
         Json::FastWriter writer;
         string json_str = writer.write(*disk);
-        cout << json_str << endl;
+        // cout << json_str << endl;
 
         string url = post_url + "/disk";
-        post(url.c_str(), project_key, json_str);
+        post(url.c_str(), json_str);
     }
-    return disk;
 }
 
-Json::Value* ServerData::net_info() {
+void ServerData::post_netstat() {
     Json::Value* net = NULL;
+    unique_lock<mutex> lock(netstat_queue_mtx);
+    if(netstat_queue.empty()) {
+        netstat_queue_not_empty.wait(lock);
+        lock.unlock();
+    } else {
+        lock.unlock();
+    }
+
     if(!netstat_queue.empty()){
+        unique_lock<mutex> lock(netstat_queue_mtx);
         Netstat netstat = netstat_queue.front();
         // cout << netstat << endl;
         netstat_queue.pop();
+        lock.unlock();
 
         if(netstat_before == NULL) {
             netstat_before = new Netstat();
             *netstat_before = netstat;
+            return;
         }
 
         net = new Json::Value();
@@ -186,40 +257,59 @@ Json::Value* ServerData::net_info() {
 
         Json::FastWriter writer;
         string json_str = writer.write(*net);
-        cout << json_str << endl;
+        // cout << json_str << endl;
 
         string url = post_url + "/net";
-        post(url.c_str(), project_key, json_str);
-    }
-    return net;
-}
-
-void post_data() {
-    ifstream ifs;
-    ifs.open(".config");
-
-    Json::Reader reader;
-    Json::Value root;
-    if(!reader.parse(ifs, root, false)) {
-        cout << "can not find .config file" << endl;
-        exit(1);
-    }
-    string url = root["url"].asString();
-    string key = root["key"].asString();
-
-    cout << url << endl;
-    cout << key << endl;
-
-    ServerData serverData(url,  key);
-    while(true) {
-        Json::Value* cpu_info = serverData.cpu_info();
-        Json::Value* mem_info = serverData.mem_info();
-        Json::Value* disk_info = serverData.disk_info();
-        Json::Value* net_info = serverData.net_info();
-        sleep(1);
+        post(url.c_str(), json_str);
     }
 }
 
 
+void cpu_info_task(ServerData* serverData) {
+    while(true){
+        // cout << "cpu_info_task" << endl;
+        serverData->post_cpu();
+        // usleep(800*1000);
+    }
+}
 
+void mem_info_task(ServerData* serverData) {
+    while(true){
+        // cout << "mem_info_task" << endl;
+        serverData->post_meminfo();
+        // usleep(800*1000);
+    }
+    
+}
 
+void disk_info_task(ServerData* serverData) {
+    while(true){
+        // cout << "disk_info_task" << endl;
+        serverData->post_vmstat();
+        // usleep(800*1000);
+    }
+    
+}
+
+void net_info_task(ServerData* serverData) {
+    while(true){
+        // cout << "net_info_task" << endl;
+        serverData->post_netstat();
+        // usleep(800*1000);
+    }
+    
+}
+
+void post_data(ServerData* serverData) {
+
+    thread cpu_thread(cpu_info_task, serverData);
+    thread mem_thread(mem_info_task, serverData);
+    thread disk_thread(disk_info_task, serverData);
+    thread net_thread(net_info_task, serverData);
+
+    cpu_thread.join();
+    mem_thread.join();
+    disk_thread.join();
+    net_thread.join();
+
+}

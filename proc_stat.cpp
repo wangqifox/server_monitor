@@ -13,10 +13,11 @@ const string CPUFILE = "/proc/stat";
 vector<string> readFile(string filename){
     ifstream in("/proc/stat");
     string line;
+    vector<string> words;
     if(in){
         while(getline(in, line)){
             cout << line << endl;
-            vector<string> words = getWords(line);
+            words = getWords(line);
             if(words[0] == "cpu"){
                 cout << words.size() << endl;
                 in.close();
@@ -25,6 +26,7 @@ vector<string> readFile(string filename){
         }
     }
     in.close();
+    return words;
 }
 
 Cpu readCpuStat(){

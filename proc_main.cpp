@@ -3,18 +3,18 @@
 #include <unistd.h>
 #include "proc_main.h"
 
-void proc_main() {
+void proc_main(ServerData* serverData) {
     while(true) {
         Cpu cpu = readCpuStat();
         MemInfo meminfo = readMemInfo();
         Vmstat vmstat = readVmstat();
         Netstat netstat = readNetstat();
-
-        cpu_queue.push(cpu);
-        memInfo_queue.push(meminfo);
-        vmstat_queue.push(vmstat);
-        netstat_queue.push(netstat);
         
+        serverData->add_cpu(cpu);
+        serverData->add_meminfo(meminfo);
+        serverData->add_vmstat(vmstat);
+        serverData->add_netstat(netstat);
+
         sleep(1);
     }
 

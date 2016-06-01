@@ -53,4 +53,6 @@ int main_netstat() {
     Netstat netstat = netstat2 - netstat1;
     cout << netstat.InOctets * 8 / 1000.0 << endl;
     cout << netstat.OutOctets * 8 / 1000.0 << endl;
+
+    return 0;
 }

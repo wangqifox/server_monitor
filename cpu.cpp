@@ -52,16 +52,18 @@ ostream& operator<< (ostream &os, CpuRate &cpuRate) {
 }
 
 ostream& operator<< (ostream &os, Cpu &cpu) {
-        os << "time: " << cpu.time << endl
-            << "cpu: " << endl;
-        for(CpuTime cpuTime : cpu.cpu) {
-            os << "\t" << cpuTime << endl;
-        }
-        os << "ctxt: " << cpu.ctxt << endl
-            << "processes: " << cpu.processes << endl
-            << "procs_running: " << cpu.procs_running << endl
-            << "procs_blocked: " << cpu.procs_blocked << endl;
+    os << "time: " << cpu.time << endl
+        << "cpu: " << endl;
+    for(CpuTime cpuTime : cpu.cpu) {
+        os << "\t" << cpuTime << endl;
     }
+    os << "ctxt: " << cpu.ctxt << endl
+        << "processes: " << cpu.processes << endl
+        << "procs_running: " << cpu.procs_running << endl
+        << "procs_blocked: " << cpu.procs_blocked << endl;
+
+    return os;
+}
 
 vector<CpuRate> cpuRate(const Cpu& cpu1, const Cpu& cpu2) {
     vector<CpuRate> cpuRateVec;

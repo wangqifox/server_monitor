@@ -1,8 +1,8 @@
 CC=g++
-CPPFLAGS=-std=c++11
+CPPFLAGS=-Wall -std=c++11 -g
 LDFLAGS=-pthread
 
-monitor : main.o utils.o proc_main.o post_data.o proc_stat.o proc_meminfo.o proc_vmstat.o proc_netstat.o data.o cpu.o meminfo.o vmstat.o netstat.o libjson.a
+monitor : main.o utils.o proc_main.o post_data.o proc_stat.o proc_meminfo.o proc_vmstat.o proc_netstat.o cpu.o meminfo.o vmstat.o netstat.o libjson.a
 	$(CC) $(LDFLAGS) -o $@ $^ -lcurl
 
 main.o : main.cpp
@@ -20,9 +20,6 @@ proc_vmstat.o : proc_vmstat.cpp
 proc_netstat.o : proc_netstat.cpp
 	$(CC) $(CPPFLAGS) -o $@ -c $^
 utils.o : utils.cpp
-	$(CC) $(CPPFLAGS) -o $@ -c $^
-
-data.o : data.cpp
 	$(CC) $(CPPFLAGS) -o $@ -c $^
 
 cpu.o : cpu.cpp
