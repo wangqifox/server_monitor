@@ -16,18 +16,6 @@
 #include "utils.h"
 #include "json/json.h"
 
-// using namespace std;
-
-// extern queue<Cpu> cpu_queue;
-// extern queue<MemInfo> memInfo_queue;
-// extern queue<Vmstat> vmstat_queue;
-// extern queue<Netstat> netstat_queue;
-
-// extern mutex mtx;
-// extern condition_variable cpu_queue_not_empty;
-// extern condition_variable memInfo_queue_not_empty;
-// extern condition_variable vmstat_queue_not_empty;
-// extern condition_variable netstat_queue_not_empty;
 using websocketpp::connection_hdl;
 
 typedef websocketpp::server<websocketpp::config::asio> server;
@@ -39,9 +27,6 @@ private:
     Vmstat* vmstat_before;
     Netstat* netstat_before;
     int page_size;
-    // string project_key;
-    // string post_url;
-    // bool post;
 
     queue<Cpu> cpu_queue;
     queue<MemInfo> memInfo_queue;
@@ -74,11 +59,6 @@ public:
         page_size = getPageSize();
     }
 
-    // ServerData(string url, string key):cpu_before(NULL),vmstat_before(NULL),netstat_before(NULL){
-    //     page_size = getPageSize();
-    //     project_key = key;
-    //     post_url = url;
-    // }
     virtual ~ServerData(){
         delete cpu_before;
         delete vmstat_before;
@@ -94,12 +74,6 @@ public:
     void post_meminfo();
     void post_vmstat();
     void post_netstat();
-
-
-    // Json::Value* cpu_info();
-    // Json::Value* mem_info();
-    // Json::Value* disk_info();
-    // Json::Value* net_info();
 };
 
 void post_data(ServerData* serverData);

@@ -43,10 +43,8 @@ public:
     
     WebsocketServer() {
         serverData = new ServerData(&m_server, &m_connections);
-        // Initialize Asio Transport
         m_server.init_asio();
 
-        // Register handler callbacks
         m_server.set_open_handler(bind(&WebsocketServer::on_open,this,::_1));
         m_server.set_close_handler(bind(&WebsocketServer::on_close,this,::_1));
         m_server.set_message_handler(bind(&WebsocketServer::on_message,this,::_1,::_2));

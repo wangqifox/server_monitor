@@ -34,35 +34,10 @@ size_t ServerData::write_data(void *ptr, size_t size, size_t nmemb, url_data *da
 }
 
 void ServerData::post(string data) {
-    // CURL *curl;
-    // CURLcode res;
-
-    // curl_global_init(CURL_GLOBAL_ALL);
-
-    // curl = curl_easy_init();
-    // if(curl) {
-    //     curl_easy_setopt(curl, CURLOPT_URL, url);
-    //     string str("project_key="+project_key+"&"+"data="+data);
-    //     curl_easy_setopt(curl, CURLOPT_POSTFIELDS, str.c_str());
-    //     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
-    //     url_data urldata;
-    //     urldata.size = 0;
-    //     urldata.data = NULL;
-    //     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &urldata);
-    //     res = curl_easy_perform(curl);
-    //     // cout << res << endl;
-    //     curl_easy_cleanup(curl);
-    // }
-    // curl_global_cleanup();
-
     for (auto it : *m_connections) {
-        // m_server.send(*it, ss.str());
-        // websocketpp::connection_hdl hdl = it;
-        // cout << &hdl << endl;
         server::connection_ptr con = m_server->get_con_from_hdl(it);
         con->send(data);
     }
-
 }
 
 void ServerData::add_cpu(Cpu& cpu) {
@@ -149,10 +124,7 @@ void ServerData::post_cpu() {
             string json_str = writer.write(*root);
             cout << json_str << endl;
 
-            // string url = post_url + "/cpu";
             post(json_str);
-
-            // con->send(json_str);
         }
     }
     
@@ -186,9 +158,7 @@ void ServerData::post_meminfo() {
 
         Json::FastWriter writer;
         string json_str = writer.write(*mem);
-        // cout << json_str << endl;
 
-        // string url = post_url + "/mem";
         post(json_str);
     }
     
@@ -228,9 +198,7 @@ void ServerData::post_vmstat() {
 
         Json::FastWriter writer;
         string json_str = writer.write(*disk);
-        // cout << json_str << endl;
 
-        // string url = post_url + "/disk";
         post(json_str);
     }
 }
@@ -269,9 +237,7 @@ void ServerData::post_netstat() {
 
         Json::FastWriter writer;
         string json_str = writer.write(*net);
-        // cout << json_str << endl;
-
-        // string url = post_url + "/net";
+        
         post(json_str);
     }
 }
@@ -279,9 +245,8 @@ void ServerData::post_netstat() {
 
 void cpu_info_task(ServerData* serverData) {
     while(true){
-        cout << "cpu_info_task" << endl;
+        // cout << "cpu_info_task" << endl;
         serverData->post_cpu();
-        // usleep(800*1000);
     }
 }
 
@@ -289,7 +254,6 @@ void mem_info_task(ServerData* serverData) {
     while(true){
         // cout << "mem_info_task" << endl;
         serverData->post_meminfo();
-        // usleep(800*1000);
     }
     
 }
@@ -298,7 +262,6 @@ void disk_info_task(ServerData* serverData) {
     while(true){
         // cout << "disk_info_task" << endl;
         serverData->post_vmstat();
-        // usleep(800*1000);
     }
     
 }
@@ -307,13 +270,11 @@ void net_info_task(ServerData* serverData) {
     while(true){
         // cout << "net_info_task" << endl;
         serverData->post_netstat();
-        // usleep(800*1000);
     }
     
 }
 
 void post_data(ServerData* serverData) {
-
     thread proc_thread(proc_main, serverData);
     thread cpu_thread(cpu_info_task, serverData);
     thread mem_thread(mem_info_task, serverData);
