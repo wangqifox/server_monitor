@@ -5,6 +5,9 @@
 #include <mutex>
 #include <condition_variable>
 #include <thread>
+#include <websocketpp/config/asio_no_tls.hpp>
+#include <websocketpp/server.hpp>
+#include <set>
 
 #include "cpu.h"
 #include "meminfo.h"
@@ -13,7 +16,7 @@
 #include "utils.h"
 #include "json/json.h"
 
-using namespace std;
+// using namespace std;
 
 // extern queue<Cpu> cpu_queue;
 // extern queue<MemInfo> memInfo_queue;
@@ -25,8 +28,10 @@ using namespace std;
 // extern condition_variable memInfo_queue_not_empty;
 // extern condition_variable vmstat_queue_not_empty;
 // extern condition_variable netstat_queue_not_empty;
+using websocketpp::connection_hdl;
 
-
+typedef websocketpp::server<websocketpp::config::asio> server;
+typedef std::set<connection_hdl,std::owner_less<connection_hdl>> con_list;
 
 class ServerData{
 private:
@@ -34,8 +39,8 @@ private:
     Vmstat* vmstat_before;
     Netstat* netstat_before;
     int page_size;
-    string project_key;
-    string post_url;
+    // string project_key;
+    // string post_url;
     // bool post;
 
     queue<Cpu> cpu_queue;
@@ -58,15 +63,22 @@ private:
         char *data;
     };
 
+    server* m_server;
+    con_list* m_connections;
+
     static size_t write_data(void *ptr, size_t size, size_t nmemb, url_data *data);
-    void post(const char * url, string data);
+    void post(string data);
 
 public:
-    ServerData(string url, string key):cpu_before(NULL),vmstat_before(NULL),netstat_before(NULL){
+    ServerData(server* server, con_list* connections):cpu_before(NULL),vmstat_before(NULL),netstat_before(NULL),m_server(server),m_connections(connections){
         page_size = getPageSize();
-        project_key = key;
-        post_url = url;
     }
+
+    // ServerData(string url, string key):cpu_before(NULL),vmstat_before(NULL),netstat_before(NULL){
+    //     page_size = getPageSize();
+    //     project_key = key;
+    //     post_url = url;
+    // }
     virtual ~ServerData(){
         delete cpu_before;
         delete vmstat_before;

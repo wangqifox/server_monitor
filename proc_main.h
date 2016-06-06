@@ -5,6 +5,8 @@
 #include <mutex>
 #include <condition_variable>
 #include <thread>
+#include <websocketpp/config/asio_no_tls.hpp>
+#include <websocketpp/server.hpp>
 
 #include "cpu.h"
 #include "meminfo.h"

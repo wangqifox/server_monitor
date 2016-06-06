@@ -5,6 +5,7 @@
 
 void proc_main(ServerData* serverData) {
     while(true) {
+        cout << "proc_main" << endl;
         Cpu cpu = readCpuStat();
         MemInfo meminfo = readMemInfo();
         Vmstat vmstat = readVmstat();
