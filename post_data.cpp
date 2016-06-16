@@ -100,6 +100,7 @@ void ServerData::post_cpu() {
             vector<CpuRate> cpuRateVec = cpuRate(*cpu_before, cpu);
         
             root = new Json::Value();
+            (*root)["type"] = "cpu";
             (*root)["time"] = tostring(cpu.time);
             for(CpuRate cpuRate : cpuRateVec){
                 Json::Value cpu;
@@ -122,7 +123,7 @@ void ServerData::post_cpu() {
 
             Json::FastWriter writer;
             string json_str = writer.write(*root);
-            cout << json_str << endl;
+            // cout << json_str << endl;
 
             post(json_str);
         }
@@ -148,6 +149,7 @@ void ServerData::post_meminfo() {
         lock.unlock();
 
         mem = new Json::Value();
+        (*mem)["type"] = "mem";
         (*mem)["time"] = tostring(meminfo.time);
         (*mem)["memTotal"] = tostring(meminfo.memTotal);
         (*mem)["memFree"] = tostring(meminfo.memFree);
@@ -188,6 +190,7 @@ void ServerData::post_vmstat() {
         }
 
         disk = new Json::Value();
+        (*disk)["type"] = "disk";
         Vmstat vmstatDelta = vmstat - *vmstat_before;
         (*disk)["time"] = tostring(vmstat.time);
         (*disk)["read"] = tostring(vmstatDelta.pgpgin * page_size);
@@ -227,6 +230,7 @@ void ServerData::post_netstat() {
         }
 
         net = new Json::Value();
+        (*net)["type"] = "net";
         Netstat netstatDelta = netstat - *netstat_before;
         (*net)["time"] = tostring(netstat.time);
         (*net)["receive"] = tostring(netstatDelta.InOctets);
@@ -237,7 +241,7 @@ void ServerData::post_netstat() {
 
         Json::FastWriter writer;
         string json_str = writer.write(*net);
-        
+
         post(json_str);
     }
 }

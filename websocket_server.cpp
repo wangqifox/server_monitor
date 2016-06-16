@@ -22,8 +22,8 @@ void WebsocketServer::on_open(connection_hdl hdl) {
     cout << &hdl << endl;
     m_connections.insert(hdl);
 
-    server::connection_ptr con = m_server.get_con_from_hdl(hdl);
-    con->send("opend");
+    // server::connection_ptr con = m_server.get_con_from_hdl(hdl);
+    // con->send("opend");
 
 }
 
@@ -35,27 +35,30 @@ void WebsocketServer::on_close(connection_hdl hdl) {
 
 void WebsocketServer::run() {
     try {
-        m_server.listen(9002);
+        m_server.listen(port);
         m_server.start_accept();
         m_server.run();
     } catch(websocketpp::exception const & e) {
-        cout << e.what() << endl;
+        cout << "websocketpp exception" << e.what() << endl;
+        exit(0);
     } catch(...) {
         cout << "other exception" << endl;
+        exit(0);
     }
 }
 
 
-void start_server() {
+void start_server(int port) {
 
     try {
-        WebsocketServer websocket_server;
+        WebsocketServer websocket_server(port);
 
-        thread t(bind(&WebsocketServer::process_messages,&websocket_server));
+        thread t(bind(&WebsocketServer::process_messages, &websocket_server));
         websocket_server.run();
         t.join();
     }catch(...) {
         cout << "other exception" << endl;
+        exit(0);
     }
-    
+
 }

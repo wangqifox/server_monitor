@@ -37,11 +37,13 @@ private:
     void on_close(connection_hdl hdl);
 
     ServerData *serverData;
+    int port;
 public:
     void run();
     void process_messages();
     
-    WebsocketServer() {
+    WebsocketServer(int port) {
+        this->port = port;
         serverData = new ServerData(&m_server, &m_connections);
         m_server.init_asio();
 
