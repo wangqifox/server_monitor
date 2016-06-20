@@ -39,7 +39,7 @@ void WebsocketServer::run() {
         m_server.start_accept();
         m_server.run();
     } catch(websocketpp::exception const & e) {
-        cout << "websocketpp exception" << e.what() << endl;
+        cout << "websocketpp exception " << e.what() << endl;
         exit(0);
     } catch(...) {
         cout << "other exception" << endl;
