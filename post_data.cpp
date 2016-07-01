@@ -94,6 +94,7 @@ void ServerData::post_cpu() {
         lock.unlock();
 
         if(cpu_before == NULL) {
+            delete cpu_before;
             cpu_before = new Cpu();
             *cpu_before = cpu;
         } else {
@@ -118,6 +119,7 @@ void ServerData::post_cpu() {
                 cpu["guest_nice"] = doubleTostring(cpuRate.guest_nice*100, 2);
                 (*root)[cpuRate.id] = cpu;
             }
+            delete cpu_before;
             cpu_before = new Cpu();
             *cpu_before = cpu;
 
@@ -184,6 +186,7 @@ void ServerData::post_vmstat() {
         lock.unlock();
 
         if(vmstat_before == NULL) {
+            delete vmstat_before;
             vmstat_before = new Vmstat();
             *vmstat_before = vmstat;
             return;
@@ -196,6 +199,7 @@ void ServerData::post_vmstat() {
         (*disk)["read"] = tostring(vmstatDelta.pgpgin * page_size);
         (*disk)["write"] = tostring(vmstatDelta.pgpgout * page_size);
 
+        delete vmstat_before;
         vmstat_before = new Vmstat();
         *vmstat_before = vmstat;
 
@@ -224,6 +228,7 @@ void ServerData::post_netstat() {
         lock.unlock();
 
         if(netstat_before == NULL) {
+            delete netstat_before;
             netstat_before = new Netstat();
             *netstat_before = netstat;
             return;
@@ -236,6 +241,7 @@ void ServerData::post_netstat() {
         (*net)["receive"] = tostring(netstatDelta.InOctets);
         (*net)["send"] = tostring(netstatDelta.OutOctets);
 
+        delete netstat_before;
         netstat_before = new Netstat();
         *netstat_before = netstat;
 
