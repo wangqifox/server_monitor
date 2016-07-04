@@ -125,6 +125,7 @@ void ServerData::post_cpu() {
 
             Json::FastWriter writer;
             string json_str = writer.write(*root);
+            delete root;
             // cout << json_str << endl;
 
             post(json_str);
@@ -162,6 +163,7 @@ void ServerData::post_meminfo() {
 
         Json::FastWriter writer;
         string json_str = writer.write(*mem);
+        delete mem;
 
         post(json_str);
     }
@@ -205,6 +207,7 @@ void ServerData::post_vmstat() {
 
         Json::FastWriter writer;
         string json_str = writer.write(*disk);
+        delete disk;
 
         post(json_str);
     }
@@ -247,6 +250,7 @@ void ServerData::post_netstat() {
 
         Json::FastWriter writer;
         string json_str = writer.write(*net);
+        delete net;
 
         post(json_str);
     }
