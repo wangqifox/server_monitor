@@ -3,7 +3,7 @@ CPPFLAGS=-Wall -std=c++11 -g -I. -I./boost/include/boost-1_61
 # LDFLAGS=-static -pthread -lboost_system -lboost_filesystem -lboost_random -lrt -lboost_timer -lboost_chrono -lcurl
 # LDFLAGS=-pthread -lboost_system -lboost_chrono
 # LDFLAGS=-pthread -L./boost/lib -lboost_system-gcc47-mt-1_61 -lboost_chrono-gcc47-mt-1_61
-LDFLAGS=-pthread -L./boost/lib
+LDFLAGS=-pthread -L.
 
 monitor : main.o websocket_server.o utils.o proc_main.o post_data.o proc_stat.o proc_meminfo.o proc_vmstat.o proc_netstat.o cpu.o meminfo.o vmstat.o netstat.o libjson.a libboost_chrono.a libboost_system.a
 	$(CC) -o $@ $^ $(LDFLAGS)
