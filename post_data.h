@@ -21,6 +21,41 @@ using websocketpp::connection_hdl;
 typedef websocketpp::server<websocketpp::config::asio> server;
 typedef std::set<connection_hdl,std::owner_less<connection_hdl>> con_list;
 
+template <class T>
+class Repository{
+private:
+    static const int buffer_size = 10;
+    T buffer[buffer_size];
+    int read_position = 0;
+    int write_position = 0;
+    mutex mtx;
+    condition_variable buffer_not_full;
+    condition_variable buffer_not_empty;
+public:
+    void add(T t){
+        unique_lock<mutex> lock(mtx);
+        while(((write_position + 1) % buffer_size) == read_position) {
+            buffer_not_full.wait(lock);
+        }
+        buffer[write_position] = t;
+        write_position = (write_position + 1) % buffer_size;
+        buffer_not_empty.notify_all();
+        lock.unlock();
+    }
+
+    T fetch() {
+        unique_lock<mutex> lock(mtx);
+        while(write_position == read_position) {
+            buffer_not_empty.wait(lock);
+        }
+        T t = buffer[read_position];
+        read_position = (read_position + 1) % buffer_size;
+        buffer_not_full.notify_all();
+        lock.unlock();
+        return t;
+    }
+};
+
 class ServerData{
 private:
     Cpu* cpu_before;
@@ -28,30 +63,14 @@ private:
     Netstat* netstat_before;
     int page_size;
 
-    queue<Cpu> cpu_queue;
-    queue<MemInfo> memInfo_queue;
-    queue<Vmstat> vmstat_queue;
-    queue<Netstat> netstat_queue;
-
-    mutex cpu_queue_mtx;
-    mutex memInfo_queue_mtx;
-    mutex vmstat_queue_mtx;
-    mutex netstat_queue_mtx;
-
-    condition_variable cpu_queue_not_empty;
-    condition_variable memInfo_queue_not_empty;
-    condition_variable vmstat_queue_not_empty;
-    condition_variable netstat_queue_not_empty;
-
-    struct url_data {
-        size_t size;
-        char *data;
-    };
+    Repository<Cpu> cpu_repository;
+    Repository<MemInfo> memInfo_repository;
+    Repository<Vmstat> vmstat_repository;
+    Repository<Netstat> netstat_repository;
 
     server* m_server;
     con_list* m_connections;
 
-    static size_t write_data(void *ptr, size_t size, size_t nmemb, url_data *data);
     void post(string data);
 
 public:

@@ -17,22 +17,6 @@
 #include "json/json.h"
 using namespace std;
 
-size_t ServerData::write_data(void *ptr, size_t size, size_t nmemb, url_data *data) {
-    size_t n = size * nmemb;
-    free(data->data);
-    data->data = (char*) malloc(sizeof(char)*(n+1));
-    if(!data->data) {
-        cout << "Failed to allocate memory" << endl;
-        return 0;
-    }
-    memcpy(data->data, ptr, n);
-    data->data[n] = '\0';
-
-    string str(data->data);
-    // cout << str << endl;
-    return n;
-}
-
 void ServerData::post(string data) {
     for (auto it : *m_connections) {
         server::connection_ptr con = m_server->get_con_from_hdl(it);
@@ -41,232 +25,155 @@ void ServerData::post(string data) {
 }
 
 void ServerData::add_cpu(Cpu& cpu) {
-    unique_lock<mutex> lock(cpu_queue_mtx);
-    cpu_queue.push(cpu);
-    lock.unlock();
-    cpu_queue_not_empty.notify_all();
-    
+    cpu_repository.add(cpu);
 }
 
 void ServerData::add_meminfo(MemInfo& meminfo) {
-    unique_lock<mutex> lock(memInfo_queue_mtx);
-    memInfo_queue.push(meminfo);
-    lock.unlock();
-    memInfo_queue_not_empty.notify_all();
-    
-    
+    memInfo_repository.add(meminfo);
 }
 
 void ServerData::add_vmstat(Vmstat& vmstat) {
-    unique_lock<mutex> lock(vmstat_queue_mtx);
-    vmstat_queue.push(vmstat);
-    lock.unlock();
-    vmstat_queue_not_empty.notify_all();
-    
-    
+    vmstat_repository.add(vmstat);
 }
 
 void ServerData::add_netstat(Netstat& netstat) {
-    unique_lock<mutex> lock(netstat_queue_mtx);
-    netstat_queue.push(netstat);
-    lock.unlock();
-    netstat_queue_not_empty.notify_all();
-    
-    
+    netstat_repository.add(netstat);
 }
 
 
 void ServerData::post_cpu() {
     Json::Value* root = NULL;
-    unique_lock<mutex> lock(cpu_queue_mtx);
-    if(cpu_queue.empty()) {
-        cpu_queue_not_empty.wait(lock);
-        lock.unlock();
+    Cpu cpu = cpu_repository.fetch();
+
+    if(cpu_before == NULL) {
+        delete cpu_before;
+        cpu_before = new Cpu();
+        *cpu_before = cpu;
     } else {
-        lock.unlock();
-    }
+        vector<CpuRate> cpuRateVec = cpuRate(*cpu_before, cpu);
     
-    if(!cpu_queue.empty()){
-        unique_lock<mutex> lock(cpu_queue_mtx);
-        Cpu cpu = cpu_queue.front();
-        // cout << "cpu " << cpu << endl;
-        cpu_queue.pop();
-        lock.unlock();
-
-        if(cpu_before == NULL) {
-            delete cpu_before;
-            cpu_before = new Cpu();
-            *cpu_before = cpu;
-        } else {
-            vector<CpuRate> cpuRateVec = cpuRate(*cpu_before, cpu);
-        
-            root = new Json::Value();
-            (*root)["type"] = "cpu";
-            (*root)["time"] = tostring(cpu.time);
-            for(CpuRate cpuRate : cpuRateVec){
-                Json::Value cpu;
-                cpu["id"] = cpuRate.id;
-                cpu["total"] = doubleTostring(cpuRate.total*100, 2);
-                cpu["user"] = doubleTostring(cpuRate.user*100, 2);
-                cpu["nice"] = doubleTostring(cpuRate.nice*100, 2);
-                cpu["system"] = doubleTostring(cpuRate.system*100, 2);
-                cpu["idle"] = doubleTostring(cpuRate.idle*100, 2);
-                cpu["iowait"] = doubleTostring(cpuRate.iowait*100, 2);
-                cpu["irq"] = doubleTostring(cpuRate.irq*100, 2);
-                cpu["softirq"] = doubleTostring(cpuRate.softirq*100, 2);
-                cpu["steal"] = doubleTostring(cpuRate.steal*100, 2);
-                cpu["guest"] = doubleTostring(cpuRate.guest*100, 2);
-                cpu["guest_nice"] = doubleTostring(cpuRate.guest_nice*100, 2);
-                (*root)[cpuRate.id] = cpu;
-            }
-            delete cpu_before;
-            cpu_before = new Cpu();
-            *cpu_before = cpu;
-
-            Json::FastWriter writer;
-            string json_str = writer.write(*root);
-            delete root;
-            // cout << json_str << endl;
-
-            post(json_str);
+        root = new Json::Value();
+        (*root)["type"] = "cpu";
+        (*root)["time"] = tostring(cpu.time);
+        for(CpuRate cpuRate : cpuRateVec){
+            Json::Value cpu;
+            cpu["id"] = cpuRate.id;
+            cpu["total"] = doubleTostring(cpuRate.total*100, 2);
+            cpu["user"] = doubleTostring(cpuRate.user*100, 2);
+            cpu["nice"] = doubleTostring(cpuRate.nice*100, 2);
+            cpu["system"] = doubleTostring(cpuRate.system*100, 2);
+            cpu["idle"] = doubleTostring(cpuRate.idle*100, 2);
+            cpu["iowait"] = doubleTostring(cpuRate.iowait*100, 2);
+            cpu["irq"] = doubleTostring(cpuRate.irq*100, 2);
+            cpu["softirq"] = doubleTostring(cpuRate.softirq*100, 2);
+            cpu["steal"] = doubleTostring(cpuRate.steal*100, 2);
+            cpu["guest"] = doubleTostring(cpuRate.guest*100, 2);
+            cpu["guest_nice"] = doubleTostring(cpuRate.guest_nice*100, 2);
+            (*root)[cpuRate.id] = cpu;
         }
+        delete cpu_before;
+        cpu_before = new Cpu();
+        *cpu_before = cpu;
+
+        Json::FastWriter writer;
+        string json_str = writer.write(*root);
+        delete root;
+
+        post(json_str);
     }
     
 }
 
 void ServerData::post_meminfo() {
     Json::Value* mem = NULL;
-    unique_lock<mutex> lock(memInfo_queue_mtx);
-    if(memInfo_queue.empty()) {
-        memInfo_queue_not_empty.wait(lock);
-        lock.unlock();
-    } else {
-        lock.unlock();
-    }
+    MemInfo meminfo = memInfo_repository.fetch();
 
-    if(!memInfo_queue.empty()){
-        unique_lock<mutex> lock(memInfo_queue_mtx);
-        MemInfo meminfo = memInfo_queue.front();
-        // cout << meminfo << endl;
-        memInfo_queue.pop();
-        lock.unlock();
+    mem = new Json::Value();
+    (*mem)["type"] = "mem";
+    (*mem)["time"] = tostring(meminfo.time);
+    (*mem)["memTotal"] = tostring(meminfo.memTotal);
+    (*mem)["memFree"] = tostring(meminfo.memFree);
+    (*mem)["buffers"] = tostring(meminfo.buffers);
+    (*mem)["cached"] = tostring(meminfo.cached);
+    (*mem)["swapTotal"] = tostring(meminfo.swapTotal);
+    (*mem)["swapFree"] = tostring(meminfo.swapFree);
 
-        mem = new Json::Value();
-        (*mem)["type"] = "mem";
-        (*mem)["time"] = tostring(meminfo.time);
-        (*mem)["memTotal"] = tostring(meminfo.memTotal);
-        (*mem)["memFree"] = tostring(meminfo.memFree);
-        (*mem)["buffers"] = tostring(meminfo.buffers);
-        (*mem)["cached"] = tostring(meminfo.cached);
-        (*mem)["swapTotal"] = tostring(meminfo.swapTotal);
-        (*mem)["swapFree"] = tostring(meminfo.swapFree);
+    Json::FastWriter writer;
+    string json_str = writer.write(*mem);
+    delete mem;
 
-        Json::FastWriter writer;
-        string json_str = writer.write(*mem);
-        delete mem;
-
-        post(json_str);
-    }
+    post(json_str);
     
 }
 
 void ServerData::post_vmstat() {
     Json::Value* disk = NULL;
-    unique_lock<mutex> lock(vmstat_queue_mtx);
-    if(vmstat_queue.empty()) {
-        vmstat_queue_not_empty.wait(lock);
-        lock.unlock();
-    } else {
-        lock.unlock();
-    }
+    Vmstat vmstat = vmstat_repository.fetch();
 
-    if(!vmstat_queue.empty()){
-        unique_lock<mutex> lock(vmstat_queue_mtx);
-        Vmstat vmstat = vmstat_queue.front();
-        // cout << vmstat << endl;
-        vmstat_queue.pop();
-        lock.unlock();
-
-        if(vmstat_before == NULL) {
-            delete vmstat_before;
-            vmstat_before = new Vmstat();
-            *vmstat_before = vmstat;
-            return;
-        }
-
-        disk = new Json::Value();
-        (*disk)["type"] = "disk";
-        Vmstat vmstatDelta = vmstat - *vmstat_before;
-        (*disk)["time"] = tostring(vmstat.time);
-        (*disk)["read"] = tostring(vmstatDelta.pgpgin * page_size);
-        (*disk)["write"] = tostring(vmstatDelta.pgpgout * page_size);
-
+    if(vmstat_before == NULL) {
         delete vmstat_before;
         vmstat_before = new Vmstat();
         *vmstat_before = vmstat;
-
-        Json::FastWriter writer;
-        string json_str = writer.write(*disk);
-        delete disk;
-
-        post(json_str);
+        return;
     }
+
+    disk = new Json::Value();
+    (*disk)["type"] = "disk";
+    Vmstat vmstatDelta = vmstat - *vmstat_before;
+    (*disk)["time"] = tostring(vmstat.time);
+    (*disk)["read"] = tostring(vmstatDelta.pgpgin * page_size);
+    (*disk)["write"] = tostring(vmstatDelta.pgpgout * page_size);
+
+    delete vmstat_before;
+    vmstat_before = new Vmstat();
+    *vmstat_before = vmstat;
+
+    Json::FastWriter writer;
+    string json_str = writer.write(*disk);
+    delete disk;
+
+    post(json_str);
+
 }
 
 void ServerData::post_netstat() {
     Json::Value* net = NULL;
-    unique_lock<mutex> lock(netstat_queue_mtx);
-    if(netstat_queue.empty()) {
-        netstat_queue_not_empty.wait(lock);
-        lock.unlock();
-    } else {
-        lock.unlock();
-    }
+    Netstat netstat = netstat_repository.fetch();
 
-    if(!netstat_queue.empty()){
-        unique_lock<mutex> lock(netstat_queue_mtx);
-        Netstat netstat = netstat_queue.front();
-        // cout << netstat << endl;
-        netstat_queue.pop();
-        lock.unlock();
-
-        if(netstat_before == NULL) {
-            delete netstat_before;
-            netstat_before = new Netstat();
-            *netstat_before = netstat;
-            return;
-        }
-
-        net = new Json::Value();
-        (*net)["type"] = "net";
-        Netstat netstatDelta = netstat - *netstat_before;
-        (*net)["time"] = tostring(netstat.time);
-        (*net)["receive"] = tostring(netstatDelta.InOctets);
-        (*net)["send"] = tostring(netstatDelta.OutOctets);
-
+    if(netstat_before == NULL) {
         delete netstat_before;
         netstat_before = new Netstat();
         *netstat_before = netstat;
-
-        Json::FastWriter writer;
-        string json_str = writer.write(*net);
-        delete net;
-
-        post(json_str);
+        return;
     }
+
+    net = new Json::Value();
+    (*net)["type"] = "net";
+    Netstat netstatDelta = netstat - *netstat_before;
+    (*net)["time"] = tostring(netstat.time);
+    (*net)["receive"] = tostring(netstatDelta.InOctets);
+    (*net)["send"] = tostring(netstatDelta.OutOctets);
+
+    delete netstat_before;
+    netstat_before = new Netstat();
+    *netstat_before = netstat;
+
+    Json::FastWriter writer;
+    string json_str = writer.write(*net);
+    delete net;
+
+    post(json_str);
 }
 
 
 void cpu_info_task(ServerData* serverData) {
     while(true){
-        // cout << "cpu_info_task" << endl;
         serverData->post_cpu();
     }
 }
 
 void mem_info_task(ServerData* serverData) {
     while(true){
-        // cout << "mem_info_task" << endl;
         serverData->post_meminfo();
     }
     
@@ -274,7 +181,6 @@ void mem_info_task(ServerData* serverData) {
 
 void disk_info_task(ServerData* serverData) {
     while(true){
-        // cout << "disk_info_task" << endl;
         serverData->post_vmstat();
     }
     
@@ -282,7 +188,6 @@ void disk_info_task(ServerData* serverData) {
 
 void net_info_task(ServerData* serverData) {
     while(true){
-        // cout << "net_info_task" << endl;
         serverData->post_netstat();
     }
     
