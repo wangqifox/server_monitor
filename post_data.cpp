@@ -2,7 +2,7 @@
 #include <time.h>
 #include <unistd.h>
 #include <sstream>
-#include <curl/curl.h>
+// #include <curl/curl.h>
 #include <fstream>
 #include <cstring>
 #include <thread>
