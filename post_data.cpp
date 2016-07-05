@@ -2,7 +2,6 @@
 #include <time.h>
 #include <unistd.h>
 #include <sstream>
-// #include <curl/curl.h>
 #include <fstream>
 #include <cstring>
 #include <thread>
@@ -46,42 +45,39 @@ void ServerData::post_cpu() {
     Cpu cpu = cpu_repository.fetch();
 
     if(cpu_before == NULL) {
-        delete cpu_before;
-        cpu_before = new Cpu();
-        *cpu_before = cpu;
-    } else {
-        vector<CpuRate> cpuRateVec = cpuRate(*cpu_before, cpu);
-    
-        root = new Json::Value();
-        (*root)["type"] = "cpu";
-        (*root)["time"] = tostring(cpu.time);
-        for(CpuRate cpuRate : cpuRateVec){
-            Json::Value cpu;
-            cpu["id"] = cpuRate.id;
-            cpu["total"] = doubleTostring(cpuRate.total*100, 2);
-            cpu["user"] = doubleTostring(cpuRate.user*100, 2);
-            cpu["nice"] = doubleTostring(cpuRate.nice*100, 2);
-            cpu["system"] = doubleTostring(cpuRate.system*100, 2);
-            cpu["idle"] = doubleTostring(cpuRate.idle*100, 2);
-            cpu["iowait"] = doubleTostring(cpuRate.iowait*100, 2);
-            cpu["irq"] = doubleTostring(cpuRate.irq*100, 2);
-            cpu["softirq"] = doubleTostring(cpuRate.softirq*100, 2);
-            cpu["steal"] = doubleTostring(cpuRate.steal*100, 2);
-            cpu["guest"] = doubleTostring(cpuRate.guest*100, 2);
-            cpu["guest_nice"] = doubleTostring(cpuRate.guest_nice*100, 2);
-            (*root)[cpuRate.id] = cpu;
-        }
-        delete cpu_before;
-        cpu_before = new Cpu();
-        *cpu_before = cpu;
+        cpu_before = new Cpu(cpu);
+        return;
+    } 
 
-        Json::FastWriter writer;
-        string json_str = writer.write(*root);
-        delete root;
+    vector<CpuRate> cpuRateVec = cpuRate(*cpu_before, cpu);
 
-        post(json_str);
+    root = new Json::Value();
+    (*root)["type"] = "cpu";
+    (*root)["time"] = tostring(cpu.time);
+    for(CpuRate cpuRate : cpuRateVec){
+        Json::Value cpu;
+        cpu["id"] = cpuRate.id;
+        cpu["total"] = doubleTostring(cpuRate.total*100, 2);
+        cpu["user"] = doubleTostring(cpuRate.user*100, 2);
+        cpu["nice"] = doubleTostring(cpuRate.nice*100, 2);
+        cpu["system"] = doubleTostring(cpuRate.system*100, 2);
+        cpu["idle"] = doubleTostring(cpuRate.idle*100, 2);
+        cpu["iowait"] = doubleTostring(cpuRate.iowait*100, 2);
+        cpu["irq"] = doubleTostring(cpuRate.irq*100, 2);
+        cpu["softirq"] = doubleTostring(cpuRate.softirq*100, 2);
+        cpu["steal"] = doubleTostring(cpuRate.steal*100, 2);
+        cpu["guest"] = doubleTostring(cpuRate.guest*100, 2);
+        cpu["guest_nice"] = doubleTostring(cpuRate.guest_nice*100, 2);
+        (*root)[cpuRate.id] = cpu;
     }
-    
+    delete cpu_before;
+    cpu_before = new Cpu(cpu);
+
+    Json::FastWriter writer;
+    string json_str = writer.write(*root);
+    delete root;
+
+    post(json_str);
 }
 
 void ServerData::post_meminfo() {
@@ -111,9 +107,7 @@ void ServerData::post_vmstat() {
     Vmstat vmstat = vmstat_repository.fetch();
 
     if(vmstat_before == NULL) {
-        delete vmstat_before;
-        vmstat_before = new Vmstat();
-        *vmstat_before = vmstat;
+        vmstat_before = new Vmstat(vmstat);
         return;
     }
 
@@ -125,8 +119,7 @@ void ServerData::post_vmstat() {
     (*disk)["write"] = tostring(vmstatDelta.pgpgout * page_size);
 
     delete vmstat_before;
-    vmstat_before = new Vmstat();
-    *vmstat_before = vmstat;
+    vmstat_before = new Vmstat(vmstat);
 
     Json::FastWriter writer;
     string json_str = writer.write(*disk);
@@ -141,9 +134,7 @@ void ServerData::post_netstat() {
     Netstat netstat = netstat_repository.fetch();
 
     if(netstat_before == NULL) {
-        delete netstat_before;
-        netstat_before = new Netstat();
-        *netstat_before = netstat;
+        netstat_before = new Netstat(netstat);
         return;
     }
 
@@ -155,8 +146,7 @@ void ServerData::post_netstat() {
     (*net)["send"] = tostring(netstatDelta.OutOctets);
 
     delete netstat_before;
-    netstat_before = new Netstat();
-    *netstat_before = netstat;
+    netstat_before = new Netstat(netstat);
 
     Json::FastWriter writer;
     string json_str = writer.write(*net);
