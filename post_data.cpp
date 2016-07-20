@@ -183,8 +183,8 @@ void net_info_task(ServerData* serverData) {
     
 }
 
-void post_data(ServerData* serverData) {
-    thread proc_thread(proc_main, serverData);
+void post_data(ServerData* serverData, int delay) {
+    thread proc_thread(proc_main, serverData, delay);
     thread cpu_thread(cpu_info_task, serverData);
     thread mem_thread(mem_info_task, serverData);
     thread disk_thread(disk_info_task, serverData);

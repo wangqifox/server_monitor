@@ -16,7 +16,7 @@
 
 using namespace std;
 
-void proc_main(ServerData* serverData);
+void proc_main(ServerData* serverData, int delay);
 
 extern Cpu readCpuStat();
 extern MemInfo readMemInfo();

@@ -14,7 +14,7 @@ void WebsocketServer::on_message(connection_hdl hdl, message_ptr msg) {
 
 
 void WebsocketServer::process_messages() {
-    post_data(serverData);
+    post_data(serverData, delay);
 }
 
 void WebsocketServer::on_open(connection_hdl hdl) {
@@ -48,10 +48,10 @@ void WebsocketServer::run() {
 }
 
 
-void start_server(int port) {
+void start_server(int port, int delay) {
 
     try {
-        WebsocketServer websocket_server(port);
+        WebsocketServer websocket_server(port, delay);
 
         thread t(bind(&WebsocketServer::process_messages, &websocket_server));
         websocket_server.run();

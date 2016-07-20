@@ -95,6 +95,6 @@ public:
     void post_netstat();
 };
 
-void post_data(ServerData* serverData);
+void post_data(ServerData* serverData, int delay=1);
 
 #endif

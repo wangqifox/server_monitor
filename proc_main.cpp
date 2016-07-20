@@ -3,7 +3,7 @@
 #include <unistd.h>
 #include "proc_main.h"
 
-void proc_main(ServerData* serverData) {
+void proc_main(ServerData* serverData, int delay) {
     while(true) {
         // cout << "proc_main" << endl;
         Cpu cpu = readCpuStat();
@@ -16,7 +16,7 @@ void proc_main(ServerData* serverData) {
         serverData->add_vmstat(vmstat);
         serverData->add_netstat(netstat);
 
-        sleep(1);
+        sleep(delay);
     }
 
 }

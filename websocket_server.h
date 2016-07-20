@@ -38,12 +38,14 @@ private:
 
     ServerData *serverData;
     int port;
+    int delay;
 public:
     void run();
     void process_messages();
     
-    WebsocketServer(int port) {
+    WebsocketServer(int port, int delay) {
         this->port = port;
+        this->delay = delay;
         serverData = new ServerData(&m_server, &m_connections);
         m_server.init_asio();
 
