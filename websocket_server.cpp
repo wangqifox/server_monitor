@@ -52,7 +52,7 @@ void start_server(int port, int delay) {
 
     try {
         WebsocketServer websocket_server(port, delay);
-
+        cout << "listening " << port << endl;
         thread t(bind(&WebsocketServer::process_messages, &websocket_server));
         websocket_server.run();
         t.join();
@@ -62,3 +62,4 @@ void start_server(int port, int delay) {
     }
 
 }
+
