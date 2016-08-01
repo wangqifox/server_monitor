@@ -9,13 +9,13 @@
 using namespace std;
 
 extern void start_server(int port, int delay);
-extern void http_server();
+extern void http_server(u_short port);
 
 int main(int argc, char **argv) {
     int port = 9002;
     int delay = 1;
     char ch;
-    while((ch = getopt(argc, argv, "pt:")) != EOF) {
+    while((ch = getopt(argc, argv, "p:t:")) != EOF) {
         switch(ch) {
             case 'p':
                 port = atoi(optarg);
@@ -25,10 +25,8 @@ int main(int argc, char **argv) {
                 break;
         }
     }
-
     
-    thread http_thread(http_server);
-    // http_thread.join();
+    thread http_thread(http_server, port+1);
     thread server_thread(start_server, port, delay);
     http_thread.join();
     server_thread.join();
