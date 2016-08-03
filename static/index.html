@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>ECharts</title>
+    <title>实时性能</title>
     <script src="echarts.min.js"></script>
     <script src="jquery-2.2.4.js"></script>
     <style type="text/css">
@@ -137,7 +137,7 @@
 
             yAxis.push({
                 gridIndex: i,
-                name: k,
+                name: k + ' %',
                 type: 'value',
                 splitLine: {show: false},
             })
@@ -217,6 +217,7 @@
                 data: data.xAxis
             },
             yAxis: {
+                name: 'MB',
                 type: 'value',
                 splitLine: {show: false},
                 boundaryGap: [0, '60%']
@@ -336,6 +337,7 @@
                 data: data.xAxis
             },
             yAxis: {
+                name: 'KB/s',
                 type: 'value',
                 boundaryGap: [0, '60%'],
                 splitLine: {show: false},
@@ -405,6 +407,7 @@
                 data: data.xAxis
             },
             yAxis: {
+                name: 'KB/s',
                 type: 'value',
                 boundaryGap: [0, '60%'],
                 splitLine: {show: false},
