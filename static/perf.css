@@ -1,0 +1,52 @@
+/*body{
+	font-family: 'Microsoft YaHei', 'sans-serif';
+	width:80%;
+}
+body>div {
+	padding: 0 10%;
+	width: 100%;
+}
+body>hr {
+	margin-left: 10%;
+}
+h1{
+	padding: 0;
+	margin-left: 19%;
+}
+.cpu_indexes{
+	padding: 0;
+	margin-left: 19%;
+	font-size: 15px;
+}
+.cpu_indexes li{
+	line-height: 1.5em;
+}*/
+
+body{
+	font-family: 'Microsoft YaHei', 'sans-serif';
+	width:70%;
+	margin: 0 auto;
+}
+
+.nav-menu {
+	position: fixed;
+	top:15%;
+	right:8%;
+	font-size: 15px;
+	border-left:1px solid #e8e8e8;
+}
+
+.nav-menu * {
+	color:#8594A0;
+}
+
+.nav-menu ul {
+	list-style: none;
+	line-height: 1.5em;
+	padding: 10px;
+	margin: 0 10px;
+}
+
+.nav-menu a {
+	text-decoration: none;
+}

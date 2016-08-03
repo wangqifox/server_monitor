@@ -9,9 +9,32 @@
     <link rel="stylesheet" type="text/css" href="perf.css">
 </head>
 <body>
+<h1>实时性能</h1>
+    <div class="cpu_indexes">
+        CPU指标说明：
+        <ul>
+            <li>user - CPU处在用户模式下的时间百分比</li>
+            <li>system - CPU处在系统模式下的时间百分比</li>
+            <li>iowait - CPU等待输入输出完成时间的百分比</li>
+            <li>steal - 管理程序维护另一个虚拟处理器时，虚拟CPU的无意识等待时间百分比</li>
+            <li>idle - 除去等待磁盘IO操作外的CPU空闲时间百分比</li>
+            <li>nice - nice值为负进程的CPU时间</li>
+            <li>irq - 硬中断时间</li>
+            <li>softirq - 软中断时间</li>
+        </ul>
+        </div>
     <div id="CPU" style=""></div><hr>
     <div id="RAM" style="height:320px;"></div><hr>
     <div id="DISK" style="height:320px;"></div><hr>
     <div id="NET" style="height:320px;"></div>
+
+    <div class="nav-menu" id="J_navMenu">
+        <ul>
+            <li><a href="#CPU">CPU</a></li>
+            <li><a href="#RAM">RAM</a></li>
+            <li><a href="#DISK">DISK</a></li>
+            <li><a href="#NET">NET</a></li>
+        </ul>
+    </div>
 </body>
 </html>
