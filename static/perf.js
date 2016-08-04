@@ -547,6 +547,27 @@ $(function(){
         });
     });
 
-  });
+
+    var toTop = {
+    init: function() {
+        $('#toTop').click(function() {
+            $("html, body").animate({
+                scrollTop: 0
+            }, 120);
+        });
+        $(window).bind("scroll", this.backToTopFun);
+        this.backToTopFun();
+    },
+    backToTopFun: function() {
+            var st = $(document).scrollTop(),
+            winh = $(window).height();
+            var $toTop = $('#toTop');
+
+            (st > winh) ? $toTop.show(): $toTop.hide();
+        }
+    };
+    toTop.init();
+
+});
 
 
