@@ -543,7 +543,7 @@ $(function(){
         $('html,body').animate({
             scrollTop: $(dest).offset().top
         }, 'slow', function() {
-        $('#J_navMenu').removeClass('animating');
+            $('#J_navMenu').removeClass('animating');
         });
     });
 
