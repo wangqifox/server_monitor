@@ -5,13 +5,13 @@ CPPFLAGS=-Wall -std=c++11 -g -I. -I./boost/include/boost-1_61
 # LDFLAGS=-pthread -L./boost/lib -lboost_system-gcc47-mt-1_61 -lboost_chrono-gcc47-mt-1_61
 LDFLAGS=-pthread -L.
 
-monitor : main.o websocket_server.o httpd.o utils.o proc_main.o post_data.o proc_stat.o proc_meminfo.o proc_vmstat.o proc_netstat.o cpu.o meminfo.o vmstat.o netstat.o libjson.a libboost_chrono.a libboost_system.a
+monitor : main.o websocket_server.o httpd.o utils.o post_data.o proc_stat.o proc_meminfo.o proc_vmstat.o proc_netstat.o cpu.o meminfo.o vmstat.o netstat.o libjson.a libboost_chrono.a libboost_system.a libtins.a libpcap.a
 	$(CC) -o $@ $^ $(LDFLAGS)
 
 main.o : main.cpp
 	$(CC) $(CPPFLAGS) -o $@ -c $^
-proc_main.o : proc_main.cpp
-	$(CC) $(CPPFLAGS) -o $@ -c $^
+# proc_main.o : proc_main.cpp
+# 	$(CC) $(CPPFLAGS) -o $@ -c $^
 post_data.o : post_data.cpp
 	$(CC) $(CPPFLAGS) -o $@ -c $^
 proc_stat.o : proc_stat.cpp
