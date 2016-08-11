@@ -6,6 +6,7 @@
     <script src="echarts.min.js"></script>
     <script src="jquery-2.2.4.js"></script>
     <script src="perf.js"></script>
+    <link rel="stylesheet" type="text/css" href="bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="perf.css">
 </head>
 <body>
@@ -40,5 +41,19 @@
     <a href="javascript:void(0);" id="toTop" title="返回顶部" style="display: block;">
         <i class="icon iconfont">&#xe613</i>
     </a>
+
+    <table class="table">
+        <thead>
+            <tr class="info">
+                <th id="ip">ip</th>
+                <th id="speed_in">speed_in</th>
+                <th id="speed_out">&#9662;&nbsp;speen_out</th>
+                <th id="total_in">total_in</th>
+                <th id="total_out">total_out</th>
+            </tr>
+        </thead>
+        <tbody id="myTable">
+        </tbody>
+    </table>
 </body>
 </html>

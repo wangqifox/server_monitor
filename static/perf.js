@@ -444,9 +444,9 @@ $(function(){
     }
 
     var socket;
-    socket = new WebSocket('ws://' + window.location.hostname + ":" + (parseInt(window.location.port) - 1));
+    socket = new WebSocket("ws://tars.nie.netease.com:9002");
     socket.onopen = function(event) {
-        console.log("onopen")
+        // console.log("onopen")
     }
 
     var cpu_data = {xAxis:[], data:{}}
@@ -460,6 +460,126 @@ $(function(){
     }
 
     var size = 60 * 5;
+
+    var sort_by = "speed_out";
+    var desc = true;
+
+    $("#ip").click(function() {
+        if (sort_by == "ip") {
+            desc = !desc;
+            $(this).html((desc ? "&#9662;" : "&#9652;") + "&nbsp;ip");
+            $("#speed_in").html("speed_in");
+            $("#speed_out").html("speed_out");
+            $("#total_in").html("total_in");
+            $("#total_out").html("total_out");
+        }
+        else {
+            sort_by = "ip";
+            desc = false;
+            $(this).html("&#9652;&nbsp;ip");
+            $("#speed_in").html("speed_in");
+            $("#speed_out").html("speed_out");
+            $("#total_in").html("total_in");
+            $("#total_out").html("total_out");
+        }
+    });
+
+    $("#speed_in").click(function() {
+        if (sort_by == "speed_in") {
+            desc = !desc;
+            $(this).html((desc ? "&#9662;" : "&#9652;") + "&nbsp;speed_in");
+            $("#ip").html("ip");
+            $("#speed_out").html("speed_out");
+            $("#total_in").html("total_in");
+            $("#total_out").html("total_out");
+        }
+        else {
+            sort_by = "speed_in";
+            desc = true;
+            $(this).html("&#9662;&nbsp;speed_in");
+            $("#ip").html("ip");
+            $("#speed_out").html("speed_out");
+            $("#total_in").html("total_in");
+            $("#total_out").html("total_out");
+        }
+    });
+
+    $("#speed_out").click(function() {
+        if (sort_by == "speed_out") {
+            desc = !desc;
+            $(this).html((desc ? "&#9662;" : "&#9652;") + "&nbsp;speed_out");
+            $("#ip").html("ip");
+            $("#speed_in").html("speed_in");
+            $("#total_in").html("total_in");
+            $("#total_out").html("total_out");
+        }
+        else {
+            sort_by = "speed_out";
+            desc = true;
+            $(this).html("&#9662;&nbsp;speed_out");
+            $("#ip").html("ip");
+            $("#speed_in").html("speed_in");
+            $("#total_in").html("total_in");
+            $("#total_out").html("total_out");
+        }
+    });
+
+    $("#total_in").click(function() {
+        if (sort_by == "total_in") {
+            desc = !desc;
+            $(this).html((desc ? "&#9662;" : "&#9652;") + "&nbsp;total_in");
+            $("#ip").html("ip");
+            $("#speed_in").html("speed_in");
+            $("#speed_out").html("speed_out");
+            $("#total_out").html("total_out");
+        }
+        else {
+            sort_by = "total_in";
+            desc = true;
+            $(this).html("&#9662;&nbsp;total_in");
+            $("#ip").html("ip");
+            $("#speed_in").html("speed_in");
+            $("#speed_out").html("speed_out");
+            $("#total_out").html("total_out");
+        }
+    });
+
+    $("#total_out").click(function() {
+        if (sort_by == "total_out") {
+            desc = !desc;
+            $(this).html((desc ? "&#9662;" : "&#9652;") + "&nbsp;total_out");
+            $("#ip").html("ip");
+            $("#speed_in").html("speed_in");
+            $("#speed_out").html("speed_out");
+            $("#total_in").html("total_in");
+        }
+        else {
+            sort_by = "total_out";
+            desc = true;
+            $(this).html("&#9662;&nbsp;total_out");
+            $("#ip").html("ip");
+            $("#speed_in").html("speed_in");
+            $("#speed_out").html("speed_out");
+            $("#total_in").html("total_in");
+        }
+    });
+
+    function compare(a1, a2) {
+        var ret = 0;
+        if (sort_by == "ip")
+            ret = a1["ip"].localeCompare(a2["ip"]);
+        else
+            ret = a1[sort_by] < a2[sort_by] ? -1 : 1;
+        if (desc)
+            ret *= -1;
+        return ret;
+    }
+
+    function change_sort_by(str) {
+        sort_by = str;
+        console.log(sort_by);
+    }
+
     socket.onmessage = function(event) {
         data = JSON.parse(event.data)
         // console.log(data);
@@ -485,7 +605,7 @@ $(function(){
                 }
 
             }
-            console.log(cpu_data);
+            // console.log(cpu_data);
             $("#CPU").height(250 * Object.keys(cpu_data.data).length);
             cpuChart.resize();
             setCpu(cpu_data);
@@ -527,12 +647,34 @@ $(function(){
                 net_data.data.send.shift();
             }
             setNet(net_data);
+        } else if (data.type == 'traffic') {
+            var array = [];
+            for (key in data)
+                array.push({"ip": key, "speed_in": data[key]["speed_in"], "speed_out": data[key]["speed_out"],
+                    "total_in": data[key]["total_in"], "total_out": data[key]["total_out"]});
+            array.splice(-1, 1);
+
+            array.sort(compare);
+
+            var myHtml = "";
+
+            for (var i = 0; i < array.length; i++) {
+                myHtml += "<tr>" +
+                "<td>" + array[i].ip + "</td>" +
+                "<td>" + array[i].speed_in + "</td>" +
+                "<td>" + array[i].speed_out + "</td>" +
+                "<td>" + array[i].total_in + "</td>" +
+                "<td>" + array[i].total_out + "</td>" +
+                "</tr>"
+            }
+
+            $("#myTable").html(myHtml);
         }
 
     }
 
     socket.onclose = function(event) {
-        console.log("onclose")
+        // console.log("onclose")
     }
 
 
@@ -569,5 +711,7 @@ $(function(){
     toTop.init();
 
 });
+
+
 
 

@@ -76,3 +76,7 @@ body{
 	bottom: 100px;
 	right: 10%;
 }
+
+th {
+	cursor: pointer;
+}
