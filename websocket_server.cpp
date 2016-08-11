@@ -20,8 +20,8 @@ void WebsocketServer::process_messages() {
 }
 
 void WebsocketServer::on_open(connection_hdl hdl) {
-    cout << "on_open" << endl;
-    cout << &hdl << endl;
+    // cout << "on_open" << endl;
+    // cout << &hdl << endl;
     m_connections.insert(hdl);
 
     // server::connection_ptr con = m_server.get_con_from_hdl(hdl);
@@ -31,21 +31,20 @@ void WebsocketServer::on_open(connection_hdl hdl) {
 
 
 void WebsocketServer::on_close(connection_hdl hdl) {
-    cout << "on_close" << endl;
+    // cout << "on_close" << endl;
     m_connections.erase(hdl);
 }
 
 
 void WebsocketServer::traverse() {
     while(true) {
-        std::cout << "==============" << std::endl;
+        // std::cout << "==============" << std::endl;
         serverData->trafficData.traverse();
         sleep(1);
     }
 }
 
 bool WebsocketServer::callback(const Packet &packet) {
-    // std::cout << packet.timestamp().seconds() << std::endl;
     time_t now = packet.timestamp().seconds();
     if (now != seconds) {
         serverData->trafficData.clearSpeed();
@@ -53,9 +52,6 @@ bool WebsocketServer::callback(const Packet &packet) {
     } 
     const PDU* pdu = packet.pdu();
     const IP &ip = pdu->rfind_pdu<IP>();
-    // std::cout << ip.src_addr() << " -> "
-    //        << ip.dst_addr() << " "
-    //        << ip.tot_len() << std::endl;
 
     if(ip_addr != ip.src_addr()) {
         serverData->trafficData.addIn(ip.src_addr(), ip.tot_len());
@@ -70,21 +66,16 @@ bool WebsocketServer::callback(const Packet &packet) {
 
 void WebsocketServer::start_sniffer() {
     NetworkInterface iface = NetworkInterface("eth0");
-    std::cout << iface.name() << std::endl;
+    // std::cout << iface.name() << std::endl;
     NetworkInterface::Info info = iface.info();
-    std::cout << info.ip_addr << std::endl;
+    // std::cout << info.ip_addr << std::endl;
     ip_addr = info.ip_addr;
     
     _sniffer.sniff_loop(std::bind(&WebsocketServer::callback, this, std::placeholders::_1));
-    // while(true) {
-    //     cout << "++++++++++++++sniffer++++++++++++" << endl;
-    //     sleep(1);
-    // }
 }
 
 void WebsocketServer::start_proc() {
     while(true) {
-        cout << "start_proc" << endl;
         Cpu cpu = readCpuStat();
         MemInfo meminfo = readMemInfo();
         Vmstat vmstat = readVmstat();
@@ -112,15 +103,9 @@ void WebsocketServer::run() {
     } catch(const std::exception& e) {
         std::cout << "Caught exception \"" << e.what() << "\"\n";
     }
-    // catch(...) {
-    //     cout << "other exception" << endl;
-    //     exit(0);
-    // }
 }
 
-
 void start_server(int port, int delay) {
-
     try {
         WebsocketServer websocket_server(port, delay);
         cout << "listening " << port << endl;
@@ -132,15 +117,9 @@ void start_server(int port, int delay) {
         process_thread.join();
         sniffer_thread.join();
         proc_thread.join();
-        
+
     } catch(const std::exception& e) {
         std::cout << "Caught exception \"" << e.what() << "\"\n";
     }
-
-    // catch(...) {
-    //     cout << "other exception" << endl;
-    //     exit(0);
-    // }
-
 }
 

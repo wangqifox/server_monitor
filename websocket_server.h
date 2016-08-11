@@ -57,6 +57,12 @@ public:
         this->port = port;
         this->delay = delay;
         serverData = new ServerData(&m_server, &m_connections);
+
+        m_server.clear_access_channels(websocketpp::log::alevel::all);
+        m_server.set_access_channels(websocketpp::log::alevel::connect);
+        m_server.set_access_channels(websocketpp::log::alevel::disconnect);
+        // m_server.set_access_channels(websocketpp::log::alevel::app);
+        
         m_server.init_asio();
 
         m_server.set_open_handler(bind(&WebsocketServer::on_open,this,::_1));
