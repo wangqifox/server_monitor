@@ -155,6 +155,40 @@ void ServerData::post_netstat() {
     post(json_str);
 }
 
+void ServerData::post_traffic() {
+    // std::cout << "======traverse========" << std::endl;
+    // trafficData.traverse();
+    std::list<std::pair<IP::address_type, Traffic> >& traffic_list = trafficData.getList();
+    Json::Value* traffic_json = NULL;
+    traffic_json = new Json::Value();
+    (*traffic_json)["type"] = "traffic";
+
+    for(auto it = traffic_list.begin(); it != traffic_list.end(); ++it) {
+        // std::cout << it->first << " : " << it->second << std::endl;
+        Traffic& traffic = it->second;
+
+
+        Json::Value ip;
+        ip["speed_in"] = traffic.getSpeedIn();
+        ip["speed_out"] = traffic.getSpeedOut();
+        ip["total_in"] = traffic.getTotalIn();
+        ip["total_out"] = traffic.getTotalOut();
+        
+
+        (*traffic_json)[traffic.getAddress()] = ip;
+        
+        // cout << traffic.getAddress() << endl;
+    }
+
+    Json::FastWriter writer;
+    string json_str = writer.write(*traffic_json);
+    cout << json_str << endl;
+    delete traffic_json;
+    post(json_str);
+
+    sleep(1);
+}
+
 
 void cpu_info_task(ServerData* serverData) {
     while(true){
@@ -183,18 +217,27 @@ void net_info_task(ServerData* serverData) {
     
 }
 
+void traffic_info_task(ServerData* serverData) {
+    while(true) {
+        serverData->post_traffic();
+    }
+}
+
 void post_data(ServerData* serverData, int delay) {
-    thread proc_thread(proc_main, serverData, delay);
+    // thread proc_thread(proc_main, serverData, delay);
+
     thread cpu_thread(cpu_info_task, serverData);
     thread mem_thread(mem_info_task, serverData);
     thread disk_thread(disk_info_task, serverData);
     thread net_thread(net_info_task, serverData);
+    thread traffic_thread(traffic_info_task, serverData);
 
-    proc_thread.join();
+    // proc_thread.join();
     cpu_thread.join();
     mem_thread.join();
     disk_thread.join();
     net_thread.join();
+    traffic_thread.join();
 
 }
 

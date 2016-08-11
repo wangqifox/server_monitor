@@ -15,6 +15,7 @@
 #include "netstat.h"
 #include "utils.h"
 #include "json/json.h"
+#include "sniffer.hpp"
 
 using websocketpp::connection_hdl;
 
@@ -74,6 +75,8 @@ private:
     void post(string data);
 
 public:
+    TrafficData trafficData = TrafficData(20);
+
     ServerData(server* server, con_list* connections):cpu_before(NULL),vmstat_before(NULL),netstat_before(NULL),m_server(server),m_connections(connections){
         page_size = getPageSize();
     }
@@ -93,6 +96,8 @@ public:
     void post_meminfo();
     void post_vmstat();
     void post_netstat();
+    void post_traffic();
+
 };
 
 void post_data(ServerData* serverData, int delay=1);

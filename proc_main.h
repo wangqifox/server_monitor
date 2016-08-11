@@ -1,12 +1,12 @@
 #ifndef PROCMAIN_H
 #define PROCMAIN_H
 
-#include <queue>
-#include <mutex>
-#include <condition_variable>
-#include <thread>
-#include <websocketpp/config/asio_no_tls.hpp>
-#include <websocketpp/server.hpp>
+// #include <queue>
+// #include <mutex>
+// #include <condition_variable>
+// #include <thread>
+// #include <websocketpp/config/asio_no_tls.hpp>
+// #include <websocketpp/server.hpp>
 
 #include "cpu.h"
 #include "meminfo.h"
@@ -16,7 +16,7 @@
 
 using namespace std;
 
-void proc_main(ServerData* serverData, int delay);
+// void proc_main(ServerData* serverData, int delay);
 
 extern Cpu readCpuStat();
 extern MemInfo readMemInfo();

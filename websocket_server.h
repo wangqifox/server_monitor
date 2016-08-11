@@ -12,6 +12,7 @@
 
 #include "proc_main.h"
 #include "post_data.h"
+#include "sniffer.hpp"
 
 typedef websocketpp::server<websocketpp::config::asio> server;
 
@@ -37,11 +38,20 @@ private:
     void on_close(connection_hdl hdl);
 
     ServerData *serverData;
+
+    Sniffer _sniffer = Sniffer("eth0");
+    IP::address_type ip_addr;
+    time_t seconds;
+
     int port;
     int delay;
 public:
     void run();
     void process_messages();
+    bool callback(const Packet &packet);
+    void traverse();
+    void start_sniffer();
+    void start_proc();
     
     WebsocketServer(int port, int delay) {
         this->port = port;
