@@ -47,7 +47,8 @@ void WebsocketServer::traverse() {
 bool WebsocketServer::callback(const Packet &packet) {
     time_t now = packet.timestamp().seconds();
     if (now != seconds) {
-        serverData->trafficData.clearSpeed();
+        serverData->trafficData.read_to_fetch.notify_all();
+        // serverData->trafficData.clearSpeed();
         seconds = now;
     } 
     const PDU* pdu = packet.pdu();

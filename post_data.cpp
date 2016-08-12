@@ -160,15 +160,19 @@ void ServerData::post_traffic() {
 
 
     try {
-        std::list<std::pair<IP::address_type, Traffic> > traffic_list = trafficData.getList();
+        std::list<std::pair<IP::address_type, Traffic> > traffic_list = trafficData.fetch();
         Json::Value* traffic_json = NULL;
         traffic_json = new Json::Value();
         (*traffic_json)["type"] = "traffic";
 
+        // int speedin = 0;
+        // int speedout = 0;
         for(auto it = traffic_list.begin(); it != traffic_list.end(); ++it) {
             Traffic& traffic = it->second;
 
             Json::Value ip;
+            // speedin += traffic.getSpeedIn();
+            // speedout += traffic.getSpeedOut();
             ip["speed_in"] = tostring(traffic.getSpeedIn());
             ip["speed_out"] = tostring(traffic.getSpeedOut());
             ip["total_in"] = tostring(traffic.getTotalIn());
@@ -178,6 +182,7 @@ void ServerData::post_traffic() {
             (*traffic_json)[traffic.getAddress()] = ip;
         }
 
+        // cout << speedin / 1024 << " " << speedout / 1024 << endl;
         Json::FastWriter writer;
         string json_str = writer.write(*traffic_json);
         // cout << json_str << endl;
@@ -234,7 +239,6 @@ void net_info_task(ServerData* serverData) {
 void traffic_info_task(ServerData* serverData) {
     while(true) {
         serverData->post_traffic();
-        sleep(1);
     }
 }
 

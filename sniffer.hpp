@@ -82,7 +82,9 @@ class TrafficData {
 private:
 	lru<IP::address_type, Traffic> traffic_buffer;
 	std::mutex mtx;
+	
 public:
+	std::condition_variable read_to_fetch;
 	TrafficData(size_t size):traffic_buffer(size) {}
 
 	TrafficData(const TrafficData& t):traffic_buffer(t.traffic_buffer){}
@@ -116,17 +118,32 @@ public:
 	}
 
 	void clearSpeed() {
+		// std::cout << "clearSpeed" << std::endl;
+		unique_lock<mutex> lock(mtx);
 		std::list<std::pair<IP::address_type, Traffic> >& traffic_list = traffic_buffer.getList();
 		for(auto it = traffic_list.begin(); it != traffic_list.end(); ++it) {
 			it->second.clearSpeed();
 		}
+		lock.unlock();
 	}
 
 	void traverse() {
-		std::list<std::pair<IP::address_type, Traffic> >& traffic_list = traffic_buffer.getList();
+		unique_lock<mutex> lock(mtx);
+		std::list<std::pair<IP::address_type, Traffic> > traffic_list = traffic_buffer.getList();
+		lock.unlock();
 		for(auto it = traffic_list.begin(); it != traffic_list.end(); ++it) {
 			std::cout << it->first << " : " << it->second << std::endl;
 		}
+	}
+
+	std::list<std::pair<IP::address_type, Traffic> > fetch() {
+
+		unique_lock<mutex> lock(mtx);
+		read_to_fetch.wait(lock);
+		std::list<std::pair<IP::address_type, Traffic> > traffic_list = traffic_buffer.getList();
+		lock.unlock();
+		clearSpeed();
+		return traffic_list;
 	}
 
 	std::list<std::pair<IP::address_type, Traffic> > getList() {
