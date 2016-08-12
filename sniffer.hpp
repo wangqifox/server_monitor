@@ -7,6 +7,7 @@
 #include <time.h>
 #include <unistd.h>
 #include <list>
+#include <mutex>
 #include "lru.hpp"
 
 using namespace Tins;
@@ -14,29 +15,29 @@ using namespace Tins;
 class Traffic{
 private:
 	IP::address_type address;
-	int speed_in;
-	int speed_out;
-	int total_in;
-	int total_out;
+	ulong speed_in;
+	ulong speed_out;
+	ulong total_in;
+	ulong total_out;
 public:
 	Traffic(IP::address_type address):speed_in(0), speed_out(0), total_in(0), total_out(0) {
 		this->address = address;
 	}
 
-	void addTotalIn(int in) {
+	void addTotalIn(ulong in) {
 		this->total_in += in;
 	}
 
-	void addTotalOut(int out) {
+	void addTotalOut(ulong out) {
 		this->total_out += out;
 	}
 
-	void addSpeedIn(int in) {
+	void addSpeedIn(ulong in) {
 		this->speed_in += in;
 		addTotalIn(in);
 	}
 
-	void addSpeedOut(int out) {
+	void addSpeedOut(ulong out) {
 		this->speed_out += out;
 		addTotalOut(out);
 	}
@@ -50,19 +51,19 @@ public:
 		return address.to_string();
 	}
 
-	int getTotalIn() {
+	ulong getTotalIn() {
 		return total_in;
 	}
 
-	int getTotalOut() {
+	ulong getTotalOut() {
 		return total_out;
 	}
 
-	int getSpeedIn() {
+	ulong getSpeedIn() {
 		return speed_in;
 	}
 
-	int getSpeedOut() {
+	ulong getSpeedOut() {
 		return speed_out;
 	}
 
@@ -80,10 +81,14 @@ public:
 class TrafficData {
 private:
 	lru<IP::address_type, Traffic> traffic_buffer;
+	std::mutex mtx;
 public:
 	TrafficData(size_t size):traffic_buffer(size) {}
 
+	TrafficData(const TrafficData& t):traffic_buffer(t.traffic_buffer){}
+
 	void addIn(IP::address_type address, int in) {
+		unique_lock<mutex> lock(mtx);
 		if(traffic_buffer.exists(address)) {
 			Traffic& traffic = traffic_buffer.get(address);
 			traffic.addSpeedIn(in);
@@ -93,9 +98,11 @@ public:
 			traffic.addSpeedIn(in);
 			traffic_buffer.put(address, traffic);
 		}
+		lock.unlock();
 	}
 
 	void addOut(IP::address_type address, int out) {
+		unique_lock<mutex> lock(mtx);
 		if(traffic_buffer.exists(address)) {
 			Traffic& traffic = traffic_buffer.get(address);
 			traffic.addSpeedOut(out);
@@ -105,6 +112,7 @@ public:
 			traffic.addSpeedOut(out);
 			traffic_buffer.put(address, traffic);
 		}
+		lock.unlock();
 	}
 
 	void clearSpeed() {
@@ -121,8 +129,11 @@ public:
 		}
 	}
 
-	std::list<std::pair<IP::address_type, Traffic> >& getList() {
-		return traffic_buffer.getList();
+	std::list<std::pair<IP::address_type, Traffic> > getList() {
+		unique_lock<mutex> lock(mtx);
+		std::list<std::pair<IP::address_type, Traffic> > traffic_list = traffic_buffer.getList();
+		lock.unlock();
+		return traffic_list;
 	}
 
 

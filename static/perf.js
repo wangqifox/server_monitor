@@ -444,7 +444,7 @@ $(function(){
     }
 
     var socket;
-    socket = new WebSocket("ws://tars.nie.netease.com:9002");
+    socket = new WebSocket('ws://' + window.location.hostname + ":" + (parseInt(window.location.port) - 1));
     socket.onopen = function(event) {
         // console.log("onopen")
     }
@@ -468,99 +468,99 @@ $(function(){
         if (sort_by == "ip") {
             desc = !desc;
             $(this).html((desc ? "&#9662;" : "&#9652;") + "&nbsp;ip");
-            $("#speed_in").html("speed_in");
-            $("#speed_out").html("speed_out");
-            $("#total_in").html("total_in");
-            $("#total_out").html("total_out");
+            $("#speed_in").html("speed_in" + " (KB/s)");
+            $("#speed_out").html("speed_out" + " (KB/s)");
+            $("#total_in").html("total_in" + " (KB)");
+            $("#total_out").html("total_out" + " (KB)");
         }
         else {
             sort_by = "ip";
             desc = false;
             $(this).html("&#9652;&nbsp;ip");
-            $("#speed_in").html("speed_in");
-            $("#speed_out").html("speed_out");
-            $("#total_in").html("total_in");
-            $("#total_out").html("total_out");
+            $("#speed_in").html("speed_in" + " (KB/s)");
+            $("#speed_out").html("speed_out" + " (KB/s)");
+            $("#total_in").html("total_in" + " (KB)");
+            $("#total_out").html("total_out" + " (KB)");
         }
     });
 
     $("#speed_in").click(function() {
         if (sort_by == "speed_in") {
             desc = !desc;
-            $(this).html((desc ? "&#9662;" : "&#9652;") + "&nbsp;speed_in");
+            $(this).html((desc ? "&#9662;" : "&#9652;") + "&nbsp;speed_in" + " (KB/s)");
             $("#ip").html("ip");
-            $("#speed_out").html("speed_out");
-            $("#total_in").html("total_in");
-            $("#total_out").html("total_out");
+            $("#speed_out").html("speed_out" + " (KB/s)");
+            $("#total_in").html("total_in" + " (KB)");
+            $("#total_out").html("total_out" + " (KB)");
         }
         else {
             sort_by = "speed_in";
             desc = true;
-            $(this).html("&#9662;&nbsp;speed_in");
+            $(this).html("&#9662;&nbsp;speed_in" + " (KB/s)");
             $("#ip").html("ip");
-            $("#speed_out").html("speed_out");
-            $("#total_in").html("total_in");
-            $("#total_out").html("total_out");
+            $("#speed_out").html("speed_out" + " (KB/s)");
+            $("#total_in").html("total_in" + " (KB)");
+            $("#total_out").html("total_out" + " (KB)");
         }
     });
 
     $("#speed_out").click(function() {
         if (sort_by == "speed_out") {
             desc = !desc;
-            $(this).html((desc ? "&#9662;" : "&#9652;") + "&nbsp;speed_out");
+            $(this).html((desc ? "&#9662;" : "&#9652;") + "&nbsp;speed_out" + " (KB/s)");
             $("#ip").html("ip");
-            $("#speed_in").html("speed_in");
-            $("#total_in").html("total_in");
-            $("#total_out").html("total_out");
+            $("#speed_in").html("speed_in" + " (KB/s)");
+            $("#total_in").html("total_in" + " (KB)");
+            $("#total_out").html("total_out" + " (KB)");
         }
         else {
             sort_by = "speed_out";
             desc = true;
-            $(this).html("&#9662;&nbsp;speed_out");
+            $(this).html("&#9662;&nbsp;speed_out" + " (KB/s)");
             $("#ip").html("ip");
-            $("#speed_in").html("speed_in");
-            $("#total_in").html("total_in");
-            $("#total_out").html("total_out");
+            $("#speed_in").html("speed_in" + " (KB/s)");
+            $("#total_in").html("total_in" + " (KB)");
+            $("#total_out").html("total_out" + " (KB)");
         }
     });
 
     $("#total_in").click(function() {
         if (sort_by == "total_in") {
             desc = !desc;
-            $(this).html((desc ? "&#9662;" : "&#9652;") + "&nbsp;total_in");
+            $(this).html((desc ? "&#9662;" : "&#9652;") + "&nbsp;total_in" + " (KB)");
             $("#ip").html("ip");
-            $("#speed_in").html("speed_in");
-            $("#speed_out").html("speed_out");
-            $("#total_out").html("total_out");
+            $("#speed_in").html("speed_in" + " (KB/s)");
+            $("#speed_out").html("speed_out" + " (KB/s)");
+            $("#total_out").html("total_out" + " (KB)");
         }
         else {
             sort_by = "total_in";
             desc = true;
-            $(this).html("&#9662;&nbsp;total_in");
+            $(this).html("&#9662;&nbsp;total_in" + " (KB)");
             $("#ip").html("ip");
-            $("#speed_in").html("speed_in");
-            $("#speed_out").html("speed_out");
-            $("#total_out").html("total_out");
+            $("#speed_in").html("speed_in" + " (KB/s)");
+            $("#speed_out").html("speed_out" + " (KB/s)");
+            $("#total_out").html("total_out" + " (KB)");
         }
     });
 
     $("#total_out").click(function() {
         if (sort_by == "total_out") {
             desc = !desc;
-            $(this).html((desc ? "&#9662;" : "&#9652;") + "&nbsp;total_out");
+            $(this).html((desc ? "&#9662;" : "&#9652;") + "&nbsp;total_out" + " (KB)");
             $("#ip").html("ip");
-            $("#speed_in").html("speed_in");
-            $("#speed_out").html("speed_out");
-            $("#total_in").html("total_in");
+            $("#speed_in").html("speed_in" + " (KB/s)");
+            $("#speed_out").html("speed_out" + " (KB/s)");
+            $("#total_in").html("total_in" + " (KB)");
         }
         else {
             sort_by = "total_out";
             desc = true;
-            $(this).html("&#9662;&nbsp;total_out");
+            $(this).html("&#9662;&nbsp;total_out" + " (KB)");
             $("#ip").html("ip");
-            $("#speed_in").html("speed_in");
-            $("#speed_out").html("speed_out");
-            $("#total_in").html("total_in");
+            $("#speed_in").html("speed_in" + " (KB/s)");
+            $("#speed_out").html("speed_out" + " (KB/s)");
+            $("#total_in").html("total_in" + " (KB)");
         }
     });
 
@@ -573,11 +573,6 @@ $(function(){
         if (desc)
             ret *= -1;
         return ret;
-    }
-
-    function change_sort_by(str) {
-        sort_by = str;
-        console.log(sort_by);
     }
 
     socket.onmessage = function(event) {
@@ -649,22 +644,24 @@ $(function(){
             setNet(net_data);
         } else if (data.type == 'traffic') {
             var array = [];
-            for (key in data)
-                array.push({"ip": key, "speed_in": data[key]["speed_in"], "speed_out": data[key]["speed_out"],
-                    "total_in": data[key]["total_in"], "total_out": data[key]["total_out"]});
+            for (key in data) {
+                array.push({"ip": key, "speed_in": data[key]["speed_in"] / 1024, "speed_out": data[key]["speed_out"] / 1024,
+                    "total_in": data[key]["total_in"] / 1024, "total_out": data[key]["total_out"] / 1024});
+                
+            }
             array.splice(-1, 1);
 
             array.sort(compare);
 
             var myHtml = "";
 
-            for (var i = 0; i < array.length; i++) {
+            for (var i = 0; i < array.length && i < 20; i++) {
                 myHtml += "<tr>" +
                 "<td>" + array[i].ip + "</td>" +
-                "<td>" + array[i].speed_in + "</td>" +
-                "<td>" + array[i].speed_out + "</td>" +
-                "<td>" + array[i].total_in + "</td>" +
-                "<td>" + array[i].total_out + "</td>" +
+                "<td>" + array[i].speed_in.toFixed(2) + "</td>" +
+                "<td>" + array[i].speed_out.toFixed(2) + "</td>" +
+                "<td>" + array[i].total_in.toFixed(0) + "</td>" +
+                "<td>" + array[i].total_out.toFixed(0) + "</td>" +
                 "</tr>"
             }
 

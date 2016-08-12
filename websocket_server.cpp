@@ -53,6 +53,8 @@ bool WebsocketServer::callback(const Packet &packet) {
     const PDU* pdu = packet.pdu();
     const IP &ip = pdu->rfind_pdu<IP>();
 
+    // std::cout << ip.src_addr() << " " << ip.dst_addr() << std::endl;
+
     if(ip_addr != ip.src_addr()) {
         serverData->trafficData.addIn(ip.src_addr(), ip.tot_len());
     }

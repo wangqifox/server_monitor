@@ -5,6 +5,7 @@
 #include <fstream>
 #include <cstring>
 #include <thread>
+#include <mutex>
 
 #include "post_data.h"
 #include "proc_main.h"
@@ -156,31 +157,50 @@ void ServerData::post_netstat() {
 }
 
 void ServerData::post_traffic() {
-    std::list<std::pair<IP::address_type, Traffic> >& traffic_list = trafficData.getList();
-    Json::Value* traffic_json = NULL;
-    traffic_json = new Json::Value();
-    (*traffic_json)["type"] = "traffic";
 
-    for(auto it = traffic_list.begin(); it != traffic_list.end(); ++it) {
-        Traffic& traffic = it->second;
 
-        Json::Value ip;
-        ip["speed_in"] = traffic.getSpeedIn();
-        ip["speed_out"] = traffic.getSpeedOut();
-        ip["total_in"] = traffic.getTotalIn();
-        ip["total_out"] = traffic.getTotalOut();
+    try {
+        std::list<std::pair<IP::address_type, Traffic> > traffic_list = trafficData.getList();
+        Json::Value* traffic_json = NULL;
+        traffic_json = new Json::Value();
+        (*traffic_json)["type"] = "traffic";
+
+        for(auto it = traffic_list.begin(); it != traffic_list.end(); ++it) {
+            Traffic& traffic = it->second;
+
+            Json::Value ip;
+            ip["speed_in"] = tostring(traffic.getSpeedIn());
+            ip["speed_out"] = tostring(traffic.getSpeedOut());
+            ip["total_in"] = tostring(traffic.getTotalIn());
+            ip["total_out"] = tostring(traffic.getTotalOut());
+            
+
+            (*traffic_json)[traffic.getAddress()] = ip;
+        }
+
+        Json::FastWriter writer;
+        string json_str = writer.write(*traffic_json);
+        // cout << json_str << endl;
+        delete traffic_json;
+
+        post(json_str);
+
+        // std::list<std::pair<IP::address_type, Traffic> > traffic_list = trafficData.getList();
+        // cout << "======traffic=====" << endl;
+        // for(auto it = traffic_list.begin(); it != traffic_list.end(); ++it) {
+        //     Traffic& traffic = it->second;
+        //     cout << it->first << " : " << traffic << endl;
+        // }
+
+
         
 
-        (*traffic_json)[traffic.getAddress()] = ip;
+    } catch(const std::exception& e) {
+        std::cout << "Caught post_traffic exception \"" << e.what() << "\"\n";
     }
 
-    Json::FastWriter writer;
-    string json_str = writer.write(*traffic_json);
-    // cout << json_str << endl;
-    delete traffic_json;
-    post(json_str);
 
-    sleep(1);
+    
 }
 
 
@@ -214,6 +234,7 @@ void net_info_task(ServerData* serverData) {
 void traffic_info_task(ServerData* serverData) {
     while(true) {
         serverData->post_traffic();
+        sleep(1);
     }
 }
 

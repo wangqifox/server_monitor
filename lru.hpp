@@ -14,6 +14,12 @@ public:
 
 	lru(size_t max_size):max_size(max_size){}
 
+	// lru(const lru& l) {
+	// 	items_list = l.items_list;
+	// 	items_map = l.items_map;
+	// 	max_size = l.max_size;
+	// }
+
 	void put(const key_t& key, const value_t& value) {
 		auto it = items_map.find(key);
 		items_list.push_front(key_value_pair_t(key, value));

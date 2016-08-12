@@ -75,7 +75,7 @@ private:
     void post(string data);
 
 public:
-    TrafficData trafficData = TrafficData(20);
+    TrafficData trafficData = TrafficData(100);
 
     ServerData(server* server, con_list* connections):cpu_before(NULL),vmstat_before(NULL),netstat_before(NULL),m_server(server),m_connections(connections){
         page_size = getPageSize();
