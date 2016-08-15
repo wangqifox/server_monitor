@@ -102,7 +102,7 @@ void WebsocketServer::start_proc() {
 
 void WebsocketServer::run() {
     try {
-        m_server.listen(port);
+        m_server.listen(boost::asio::ip::tcp::v4(), port);
         m_server.start_accept();
         m_server.run();
         
