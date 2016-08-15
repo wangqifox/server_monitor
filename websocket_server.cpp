@@ -68,13 +68,19 @@ bool WebsocketServer::callback(const Packet &packet) {
 }
 
 void WebsocketServer::start_sniffer() {
-    NetworkInterface iface = NetworkInterface("eth0");
-    // std::cout << iface.name() << std::endl;
-    NetworkInterface::Info info = iface.info();
-    // std::cout << info.ip_addr << std::endl;
-    ip_addr = info.ip_addr;
-    
-    _sniffer.sniff_loop(std::bind(&WebsocketServer::callback, this, std::placeholders::_1));
+    try {
+        NetworkInterface iface = NetworkInterface("eth0");
+        // std::cout << iface.name() << std::endl;
+        NetworkInterface::Info info = iface.info();
+        // std::cout << info.ip_addr << std::endl;
+        ip_addr = info.ip_addr;
+        
+        _sniffer = new Sniffer("eth0");
+    } catch(const std::exception& e) {
+        // std::cout << "not root, traffic monitor cannot setup " << e.what() << std::endl;
+        return;
+    }
+    _sniffer->sniff_loop(std::bind(&WebsocketServer::callback, this, std::placeholders::_1));
 }
 
 void WebsocketServer::start_proc() {
@@ -109,20 +115,40 @@ void WebsocketServer::run() {
 }
 
 void start_server(int port, int delay) {
+    WebsocketServer* websocket_server;
     try {
-        WebsocketServer websocket_server(port, delay);
+        websocket_server = new WebsocketServer(port, delay);
         cout << "listening " << port << endl;
-        thread process_thread(bind(&WebsocketServer::process_messages, &websocket_server));
-        thread sniffer_thread(bind(&WebsocketServer::start_sniffer, &websocket_server));
-        thread proc_thread(bind(&WebsocketServer::start_proc, &websocket_server));
+    }catch(const std::exception& e) {
+        std::cout << "WebsocketServer \"" << e.what() << "\"\n";
+    }
 
-        websocket_server.run();
-        process_thread.join();
-        sniffer_thread.join();
-        proc_thread.join();
+    thread sniffer_thread;
+    thread process_thread;
+    thread proc_thread;
+
+    // try {
+    //     sniffer_thread = thread(bind(&WebsocketServer::start_sniffer, websocket_server));
+    // } catch(const std::exception& e) {
+    //     // std::cout << "Caught exception \"" << e.what() << "\"\n";
+    //     std::cout << "not root " << e.what() << std::endl;
+    // }
+
+    try {
+        sniffer_thread = thread(bind(&WebsocketServer::start_sniffer, websocket_server));
+        process_thread = thread(bind(&WebsocketServer::process_messages, websocket_server));
+        
+        proc_thread = thread(bind(&WebsocketServer::start_proc, websocket_server));
+
+        
 
     } catch(const std::exception& e) {
         std::cout << "Caught exception \"" << e.what() << "\"\n";
     }
+
+    websocket_server->run();
+    process_thread.join();
+    sniffer_thread.join();
+    proc_thread.join();
 }
 

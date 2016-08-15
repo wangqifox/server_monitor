@@ -39,7 +39,7 @@ private:
 
     ServerData *serverData;
 
-    Sniffer _sniffer = Sniffer("eth0");
+    Sniffer* _sniffer;
     IP::address_type ip_addr;
     time_t seconds;
 
