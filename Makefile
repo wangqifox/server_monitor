@@ -42,5 +42,8 @@ netstat.o : netstat.cpp
 .PHONY:
 	clean libjson.a
 
+tar:
+	tar -czvf monitor.tar.gz monitor static
+
 clean:
 	rm monitor *.o

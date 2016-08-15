@@ -664,7 +664,7 @@ $(function(){
                 "<td>" + array[i].total_out.toFixed(0) + "</td>" +
                 "</tr>"
             }
-
+            $(".table").removeClass('hide');
             $("#myTable").html(myHtml);
         }
 

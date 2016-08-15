@@ -80,3 +80,7 @@ body{
 th {
 	cursor: pointer;
 }
+
+.hide {
+	display:none;
+}
