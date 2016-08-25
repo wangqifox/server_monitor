@@ -11,7 +11,13 @@ $(function(){
         var yAxis = []
         var legend = []
         
-        var keys = Object.keys(data.data).sort()
+        function sortNumber(a, b) {
+            var a1 = Number(a.match(/cpu(\d*)/)[1]);
+            var b1 = Number(b.match(/cpu(\d*)/)[1]);
+            return a1 - b1;
+        }
+        
+        var keys = Object.keys(data.data).sort(sortNumber);
 
         for(var i = 0, k; k = keys[i]; i++) {
             for(var j = 0, key; key = Object.keys(data.data[k]).sort()[j]; j++) {
