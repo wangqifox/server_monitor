@@ -46,4 +46,4 @@ tar:
 	tar -czvf monitor.tar.gz monitor static
 
 clean:
-	rm monitor *.o
+	rm -f monitor *.o
