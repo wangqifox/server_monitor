@@ -97,8 +97,8 @@ $(function(){
 
         for(var i = 0, k; k = keys[i]; i++) {
             grid.push({
-                top: i * (100 / keys.length) + 6 + '%',
-                height: '10%',
+                top: i * 250 + 100,
+                height: 180,
                 x:'5%',
                 x2:'10%',
             })
@@ -607,7 +607,7 @@ $(function(){
 
             }
             // console.log(cpu_data);
-            $("#CPU").height(250 * Object.keys(cpu_data.data).length);
+            $("#CPU").height(250 * Object.keys(cpu_data.data).length + 100);
             cpuChart.resize();
             setCpu(cpu_data);
         } else if(data.type == 'mem') {
