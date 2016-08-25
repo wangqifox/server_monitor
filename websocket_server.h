@@ -64,6 +64,7 @@ public:
         // m_server.set_access_channels(websocketpp::log::alevel::app);
         
         m_server.init_asio();
+        m_server.set_reuse_addr(true);
 
         m_server.set_open_handler(bind(&WebsocketServer::on_open,this,::_1));
         m_server.set_close_handler(bind(&WebsocketServer::on_close,this,::_1));
