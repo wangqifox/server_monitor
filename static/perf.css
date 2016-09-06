@@ -51,6 +51,11 @@ body{
 	text-decoration: none;
 }
 
+.nav-menu .active{
+	color: #35B5B0;
+	font-weight: bold;
+}
+
 
 @font-face {font-family: "iconfont";
 	src: url('iconfont.eot?t=1470227335'); /* IE9*/
