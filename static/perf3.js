@@ -797,24 +797,24 @@ $(function(){
                 }
             }
 
-            for (var i = 0 ; i < 10 ; i++) {
-                for (var key in data) {
-                    if(key.startsWith('cpu')) {
-                        if(!cpu_data.data[key+i]) {
-                            cpu_data.data[key+i] = []
-                        }
-                        for(var cpu_key in data[key]) {
-                            if(!cpu_data.data[key+i][cpu_key]) {
-                                cpu_data.data[key+i][cpu_key] = []
-                            }
-                            cpu_data.data[key+i][cpu_key].push(data[key][cpu_key])
-                            if(cpu_data.data[key+i][cpu_key].length > size) {
-                                cpu_data.data[key+i][cpu_key].shift();
-                            }
-                        }
-                    }
-                }
-            }
+            // for (var i = 0 ; i < 10 ; i++) {
+            //     for (var key in data) {
+            //         if(key.startsWith('cpu')) {
+            //             if(!cpu_data.data[key+i]) {
+            //                 cpu_data.data[key+i] = []
+            //             }
+            //             for(var cpu_key in data[key]) {
+            //                 if(!cpu_data.data[key+i][cpu_key]) {
+            //                     cpu_data.data[key+i][cpu_key] = []
+            //                 }
+            //                 cpu_data.data[key+i][cpu_key].push(data[key][cpu_key])
+            //                 if(cpu_data.data[key+i][cpu_key].length > size) {
+            //                     cpu_data.data[key+i][cpu_key].shift();
+            //                 }
+            //             }
+            //         }
+            //     }
+            // }
             
             // console.log(cpu_data);
             // $("#CPU").height(250 * Object.keys(cpu_data.data).length + 100);
