@@ -10,7 +10,6 @@ $(function(){
     elements['DISK'] = document.getElementById('DISK');
     elements['NET'] = document.getElementById('NET');
 
-
     var options_tmp = {};
     var options = {};
 
@@ -28,9 +27,12 @@ $(function(){
         }
     }
 
-    function visible(element){
+    function visible(element) {
         var top = $(window).scrollTop();
         var bottom = $(window).scrollTop() + $(window).height();
+        if (isScrolling) {
+            return false;
+        }
         if ((element.offsetTop + element.offsetHeight >= top && element.offsetTop + element.offsetHeight <= bottom) || (element.offsetTop >= top && element.offsetTop <= bottom)) {
             return true;
         }
@@ -757,6 +759,7 @@ $(function(){
         ele.addClass('active');
     }
 
+    var topValue = 0, interval = null, isScrolling = false;
     $(window).scroll(function() {
         var cpus_top = $('#CPUs').offset().top;
         var ram_top = $('#RAM').offset().top;
@@ -764,11 +767,6 @@ $(function(){
         var net_top = $('#NET').offset().top;
 
         var scrollH = $(this).scrollTop();
-        // console.log(scrollH);
-        // console.log(cpus_top);
-        // console.log(ram_top);
-        // console.log(disk_top);
-        // console.log(net_top);
 
         if (scrollH >= net_top) {
             set_cur('NET');
@@ -780,6 +778,16 @@ $(function(){
             set_cur('CPUs');
         }
 
+        showCharts();
+
+        if(interval == null) {
+            interval = setInterval(scrolling, 1000);
+            isScrolling = true;
+        }
+        topValue = $(this).scrollTop();
+    });
+
+    function showCharts() {
         var keys = Object.keys(elements);
         for (var i = 0, key; key = keys[i]; i++) {
             var element = elements[key];
@@ -788,17 +796,22 @@ $(function(){
                 option = options[key];
                 option_tmp = options_tmp[key];
                 if (option_tmp != option) {
-                    // console.log("setOption");
-                    // console.log(option);
-                    // console.log(option_tmp);
                     charts[key].setOption(option);
                     options_tmp[key] = option;
                 }
             }
         }
+    }
 
-        
-    });
+    function scrolling() {
+        if($(this).scrollTop() == topValue) {
+            // console.log("scrolling stop");
+            isScrolling = false;
+            showCharts();
+            clearInterval(interval);
+            interval = null;
+        }
+    }
 
     $("a[href^='#']").click(function(e) {
         e.preventDefault();
@@ -813,16 +826,16 @@ $(function(){
 
 
     var toTop = {
-    init: function() {
-        $('#toTop').click(function() {
-            $("html, body").animate({
-                scrollTop: 0
-            }, 120);
-        });
-        $(window).bind("scroll", this.backToTopFun);
-        this.backToTopFun();
-    },
-    backToTopFun: function() {
+        init: function() {
+            $('#toTop').click(function() {
+                $("html, body").animate({
+                    scrollTop: 0
+                }, 120);
+            });
+            $(window).bind("scroll", this.backToTopFun);
+            this.backToTopFun();
+        },
+        backToTopFun: function() {
             var st = $(document).scrollTop(),
             winh = $(window).height();
             var $toTop = $('#toTop');
