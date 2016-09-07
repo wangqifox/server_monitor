@@ -16,166 +16,20 @@ $(function(){
         return a1 - b1;
     }
 
-    // function getCpuOption(data) {
-    //     var series = []
-    //     var grid = []
-    //     var xAxis = []
-    //     var yAxis = []
-    //     var legend = []
+    window.onresize = function() {
+        console.log('onresize');
+        var keys = Object.keys(cpuCharts);
+        for (var i = 0, key; key = keys[i]; i++) {
+            cpuCharts[key].resize();
+        }
+        ramChart.resize();
+        diskChart.resize();
+        netChart.resize();
+    }
 
-    //     var keys = Object.keys(data.data).sort(sortNumber);
-
-    //     for(var i = 0, k; k = keys[i]; i++) {
-    //         for(var j = 0, key; key = Object.keys(data.data[k]).sort()[j]; j++) {
-    //             var v = {
-    //                 name: key,
-    //                 type: 'line',
-    //                 xAxisIndex: i,
-    //                 yAxisIndex: i,
-    //                 symbol: 'none',
-    //                 smooth: true,
-    //                 stack: k,
-    //                 lineStyle: {
-    //                     normal: {
-    //                         width: 0
-    //                     }
-    //                 },
-    //                 data: data.data[k][key]
-    //             }
-    //             switch(key) {
-    //                 case 'steal':
-    //                     v.itemStyle = {normal: {
-    //                         color: '#91c7ae',
-    //                         areaStyle: {
-    //                             color: '#91c7ae',
-    //                         }
-    //                     }}
-    //                     series.push(v)
-    //                     break
-    //                 case 'softirq':
-    //                     v.itemStyle = {normal: {
-    //                         color: '#d48265',
-    //                         areaStyle: {
-    //                             color: '#d48265',
-    //                         }
-    //                     }}
-    //                     series.push(v)
-    //                     break
-    //                 case 'user':
-    //                     v.itemStyle = {normal: {
-    //                         color: '#2f4554',
-    //                         areaStyle: {
-    //                             color: '#2f4554',
-    //                         }
-    //                     }}
-    //                     series.push(v)
-    //                     break
-    //                 case 'system':
-    //                     v.itemStyle = {normal: {
-    //                         color: '#c23531',
-    //                         areaStyle: {
-    //                             color: '#c23531'
-    //                         }
-    //                     }}
-    //                     series.push(v)
-    //                     break
-    //                 case 'nice':
-    //                     v.itemStyle = {normal: {
-    //                         color: '#61a0a8',
-    //                         areaStyle: {
-    //                             color: '#61a0a8',
-    //                         }
-    //                     }}
-    //                     series.push(v)
-    //                     break
-    //                 case 'iowait':
-    //                     v.itemStyle = {normal: {
-    //                         color: '#749f83',
-    //                         areaStyle: {
-    //                             color: '#749f83',
-    //                         }
-    //                     }}
-    //                     series.push(v)
-    //             }
-                
-    //         }
-    //     }
-
-    //     for(var i = 0, k; k = keys[i]; i++) {
-    //         grid.push({
-    //             top: i * 250 + 100,
-    //             height: 180,
-    //             x:'5%',
-    //             x2:'10%',
-    //         })
-
-    //         xAxis.push({
-    //             gridIndex: i,
-    //             type: 'category',
-    //             axisLine: {onZero: true},
-    //             splitLine: {show: false},
-    //             boundaryGap: false,
-    //             data: data.xAxis
-    //         })
-
-    //         yAxis.push({
-    //             gridIndex: i,
-    //             name: k + ' %',
-    //             type: 'value',
-    //             splitLine: {show: false},
-    //         })
-
-    //         legend.push({
-    //             data:[
-    //                     {name:'steal', icon:'bar'},  //, textStyle: {color: 'rgb(51, 102, 204)'}
-    //                     {name:'softirq', icon:'bar'},  //, textStyle: {color: 'rgb(214, 99, 0)'}
-    //                     {name:'user', icon:'bar'},  //, textStyle: {color: 'rgb(221, 221, 0)'}
-    //                     {name:'system', icon:'bar'},  //, textStyle: {color: 'rgb(59, 62, 172)'}
-    //                     {name:'nice', icon:'bar'},  //, textStyle: {color: 'rgb(238, 153, 17)'}
-    //                     {name:'iowait', icon:'bar'}  //, textStyle: {color: 'rgb(187, 68, 204)'}
-    //                 ],
-    //             orient:'vertical',
-    //             x:'right',
-    //             top: i * (100 / keys.length) + 6 + '%',
-    //             index: i,
-                
-    //         })
-    //     }
-
-    //     var option = {
-    //         title: {
-    //             text: 'CPU',
-    //             // x: 'center'
-    //             textStyle: {
-    //                 fontSize: 30,
-    //             }
-    //         },
-    //         legend: legend,
-    //         toolbox: {
-    //             show: true,
-    //             feature: {
-    //                 saveAsImage: {show: true}
-    //             }
-    //         },
-    //         tooltip: {
-    //              trigger: 'axis',
-    //             axisPointer: {
-    //                 animation: false
-    //             }
-    //         },
-    //         grid: grid,
-    //         xAxis: xAxis,
-    //         yAxis: yAxis,
-    //         series: series
-    //     }
-    //     return option
-
-    // }
+    
 
     function setCpu(key, data) {
-        // console.log(data);
-        // var option = getCpuOption(data);
-        // cpuChart.setOption(option);
         var option = {
             title: {
                 text: key,
@@ -217,7 +71,8 @@ $(function(){
                 name: ' %',
                 type: 'value',
                 splitLine: {show: false},
-                boundaryGap: [0, '60%']
+                boundaryGap: [0, '60%'],
+                max: 100,
             },
             tooltip: {
                 trigger: 'axis',
