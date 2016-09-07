@@ -1,14 +1,18 @@
 $(function(){
     // var cpuChart = echarts.init(document.getElementById('CPU'));
-    var cpuCharts = {};
-    var ramChart = echarts.init(document.getElementById('RAM'));
-    var diskChart = echarts.init(document.getElementById('DISK'));
-    var netChart = echarts.init(document.getElementById('NET'));
+    var charts = {};
+    charts['RAM'] = echarts.init(document.getElementById('RAM'));
+    charts['DISK'] = echarts.init(document.getElementById('DISK'));
+    charts['NET'] = echarts.init(document.getElementById('NET'));
 
-    var cpuEles = {};
-    var ramEle = document.getElementById('RAM');
-    var diskEle = document.getElementById('DISK');
-    var netEle = document.getElementById('NET');
+    var elements = {};
+    elements['RAM'] = document.getElementById('RAM');
+    elements['DISK'] = document.getElementById('DISK');
+    elements['NET'] = document.getElementById('NET');
+
+
+    var options_tmp = {};
+    var options = {};
 
     function sortNumber(a, b) {
         var a1 = Number(a.match(/cpu(\d*)/)[1]);
@@ -18,16 +22,22 @@ $(function(){
 
     window.onresize = function() {
         console.log('onresize');
-        var keys = Object.keys(cpuCharts);
+        var keys = Object.keys(charts);
         for (var i = 0, key; key = keys[i]; i++) {
-            cpuCharts[key].resize();
+            charts[key].resize();
         }
-        ramChart.resize();
-        diskChart.resize();
-        netChart.resize();
     }
 
-    
+    function visible(element){
+        var top = $(window).scrollTop();
+        var bottom = $(window).scrollTop() + $(window).height();
+        if ((element.offsetTop + element.offsetHeight >= top && element.offsetTop + element.offsetHeight <= bottom) || (element.offsetTop >= top && element.offsetTop <= bottom)) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
 
     function setCpu(key, data) {
         var option = {
@@ -167,15 +177,12 @@ $(function(){
         };
         // console.log(div);
         // console.log(option);
-        div = $('#'+key);
-        var top = $(window).scrollTop();
-        var bottom = $(window).scrollTop() + $(window).height();
-        // console.log(top + " " + bottom)
-        // console.log(div)
-        if ((div.offset().top + 320 >= top && div.offset().top + 320 <= bottom) || (div.offset().top >= top && div.offset().top <= bottom)) {
-            cpuCharts[key].setOption(option);
-        }
         
+        options[key] = option;
+        if (visible(elements[key])) {
+            options_tmp[key] = option;
+            charts[key].setOption(option);
+        }
     }
 
     function setCpus(data) {
@@ -188,8 +195,8 @@ $(function(){
                 cpu_div.height(320);
                 $("#CPUs").append(cpu_div);
                 // console.log(cpu_div[0]);
-                cpuEles[key] = cpu_div[0];
-                cpuCharts[key] = echarts.init(cpu_div[0]);
+                elements[key] = cpu_div[0];
+                charts[key] = echarts.init(cpu_div[0]);
             }
         }
         for (var i = 0, key; key = keys[i]; i++) {
@@ -323,14 +330,12 @@ $(function(){
                 data: data.data.swapTotal
             }]
         };
-
-        div = $('#RAM');
-        var top = $(window).scrollTop();
-        var bottom = $(window).scrollTop() + $(window).height();
-        if ((div.offset().top + 320 >= top && div.offset().top + 320 <= bottom) || (div.offset().top >= top && div.offset().top <= bottom)) {
-            ramChart.setOption(option);
+        
+        options['RAM'] = option;
+        if (visible(elements['RAM'])) {
+            options_tmp['RAM'] = option;
+            charts['RAM'].setOption(option);
         }
-        // ramChart.setOption(option);
     }
 
     function setDisk(data) {
@@ -405,13 +410,11 @@ $(function(){
                 data: data.data.write
             }]
         };
-        div = $('#DISK');
-        var top = $(window).scrollTop();
-        var bottom = $(window).scrollTop() + $(window).height();
-        if ((div.offset().top + 320 >= top && div.offset().top + 320 <= bottom) || (div.offset().top >= top && div.offset().top <= bottom)) {
-            diskChart.setOption(option);
+        options['DISK'] = option;
+        if (visible(elements['DISK'])) {
+            options_tmp['DISK'] = option;
+            charts['DISK'].setOption(option);
         }
-        // diskChart.setOption(option);
     }
 
     function setNet(data) {
@@ -486,13 +489,11 @@ $(function(){
                 data: data.data.send
             }]
         };
-        div = $('#NET');
-        var top = $(window).scrollTop();
-        var bottom = $(window).scrollTop() + $(window).height();
-        if ((div.offset().top + 320 >= top && div.offset().top + 320 <= bottom) || (div.offset().top >= top && div.offset().top <= bottom)) {
-            netChart.setOption(option);
+        options['NET'] = option;
+        if (visible(elements['NET'])) {
+            options_tmp['NET'] = option;
+            charts['NET'].setOption(option);
         }
-        // netChart.setOption(option);
     }
 
     var socket;
@@ -764,7 +765,7 @@ $(function(){
 
         var scrollH = $(this).scrollTop();
         // console.log(scrollH);
-        console.log(cpus_top);
+        // console.log(cpus_top);
         // console.log(ram_top);
         // console.log(disk_top);
         // console.log(net_top);
@@ -777,6 +778,23 @@ $(function(){
             set_cur('RAM');
         } else if (scrollH >= cpus_top) {
             set_cur('CPUs');
+        }
+
+        var keys = Object.keys(elements);
+        for (var i = 0, key; key = keys[i]; i++) {
+            var element = elements[key];
+            var chart = charts[key];
+            if (visible(element)) {
+                option = options[key];
+                option_tmp = options_tmp[key];
+                if (option_tmp != option) {
+                    // console.log("setOption");
+                    // console.log(option);
+                    // console.log(option_tmp);
+                    charts[key].setOption(option);
+                    options_tmp[key] = option;
+                }
+            }
         }
 
         
