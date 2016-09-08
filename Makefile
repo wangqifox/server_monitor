@@ -3,7 +3,7 @@ CPPFLAGS=-Wall -std=c++11 -g -I. -I./include -I./pcap -I./boost/include/boost-1_
 # LDFLAGS=-static -pthread -lboost_system -lboost_filesystem -lboost_random -lrt -lboost_timer -lboost_chrono -lcurl
 # LDFLAGS=-pthread -lboost_system -lboost_chrono
 # LDFLAGS=-pthread -L./boost/lib -lboost_system-gcc47-mt-1_61 -lboost_chrono-gcc47-mt-1_61
-LDFLAGS=-pthread -L.
+LDFLAGS=-pthread -L. -static-libstdc++ -Wl,--rpath=./lib -Wl,--dynamic-linker=./lib/ld-linux-x86-64.so.2
 
 monitor : main.o websocket_server.o httpd.o utils.o post_data.o proc_stat.o proc_meminfo.o proc_vmstat.o proc_netstat.o cpu.o meminfo.o vmstat.o netstat.o libjson.a libboost_chrono.a libboost_system.a libtins.a libpcap.a
 	$(CC) -o $@ $^ $(LDFLAGS)
@@ -43,7 +43,7 @@ netstat.o : netstat.cpp
 	clean libjson.a
 
 tar:
-	tar -czvf monitor.tar.gz monitor static
+	tar -czvf monitor.tar.gz monitor static lib
 
 clean:
 	rm -f monitor *.o
