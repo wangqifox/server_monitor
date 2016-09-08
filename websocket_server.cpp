@@ -5,10 +5,11 @@
 #include <thread>
 #include <exception>
 #include <stdexcept>
-
 #include "websocket_server.h"
 
 using namespace std;
+
+extern void http_server(u_short port);
 
 void WebsocketServer::on_message(connection_hdl hdl, message_ptr msg) {
 
@@ -126,6 +127,7 @@ void start_server(int port, int delay) {
     thread sniffer_thread;
     thread process_thread;
     thread proc_thread;
+    thread http_thread;
 
     // try {
     //     sniffer_thread = thread(bind(&WebsocketServer::start_sniffer, websocket_server));
@@ -139,7 +141,7 @@ void start_server(int port, int delay) {
         process_thread = thread(bind(&WebsocketServer::process_messages, websocket_server));
         
         proc_thread = thread(bind(&WebsocketServer::start_proc, websocket_server));
-
+        http_thread = thread(http_server, port+1);
         
 
     } catch(const std::exception& e) {
@@ -150,5 +152,6 @@ void start_server(int port, int delay) {
     process_thread.join();
     sniffer_thread.join();
     proc_thread.join();
+    http_thread.join();
 }
 

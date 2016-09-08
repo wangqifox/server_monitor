@@ -4,12 +4,12 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include "proc_main.h"
-#include "post_data.h"
+// #include "proc_main.h"
+// #include "post_data.h"
 using namespace std;
 
 extern void start_server(int port, int delay);
-extern void http_server(u_short port);
+// extern void http_server(u_short port);
 
 int main(int argc, char **argv) {
     int port = 9002;
@@ -26,9 +26,9 @@ int main(int argc, char **argv) {
         }
     }
     
-    thread http_thread(http_server, port+1);
+    // thread http_thread(http_server, port+1);
     thread server_thread(start_server, port, delay);
-    http_thread.join();
+    // http_thread.join();
     server_thread.join();
     return 0;
 }
