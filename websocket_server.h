@@ -10,7 +10,6 @@
 #include <unistd.h>
 #include <set>
 
-#include "proc_main.h"
 #include "post_data.h"
 #include "sniffer.hpp"
 
@@ -25,7 +24,10 @@ using namespace std;
 
 typedef server::message_ptr message_ptr;
 
-
+extern Cpu readCpuStat();
+extern MemInfo readMemInfo();
+extern Vmstat readVmstat();
+extern Netstat readNetstat();
 
 class WebsocketServer{
 private:

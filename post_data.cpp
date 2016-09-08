@@ -8,7 +8,6 @@
 #include <mutex>
 
 #include "post_data.h"
-#include "proc_main.h"
 #include "cpu.h"
 #include "meminfo.h"
 #include "vmstat.h"
