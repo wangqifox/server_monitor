@@ -24,10 +24,10 @@ using namespace std;
 
 typedef server::message_ptr message_ptr;
 
-extern Cpu readCpuStat();
-extern MemInfo readMemInfo();
-extern Vmstat readVmstat();
-extern Netstat readNetstat();
+// extern Cpu readCpuStat();
+// extern MemInfo readMemInfo();
+// extern Vmstat readVmstat();
+// extern Netstat readNetstat();
 
 class WebsocketServer{
 private:

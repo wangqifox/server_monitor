@@ -5,10 +5,10 @@
 #include <string>
 #include <vector>
 #include <sstream>
-#include "cpu.h"
+/*#include "cpu.hpp"
 #include "meminfo.h"
 #include "vmstat.h"
-#include "netstat.h"
+#include "netstat.h"*/
 
 using namespace std;
 

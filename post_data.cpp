@@ -8,10 +8,6 @@
 #include <mutex>
 
 #include "post_data.h"
-#include "cpu.h"
-#include "meminfo.h"
-#include "vmstat.h"
-#include "netstat.h"
 #include "utils.h"
 #include "json/json.h"
 using namespace std;

@@ -9,10 +9,11 @@
 #include <websocketpp/server.hpp>
 #include <set>
 
-#include "cpu.h"
-#include "meminfo.h"
-#include "vmstat.h"
-#include "netstat.h"
+#include "proc_stat.hpp"
+#include "proc_meminfo.hpp"
+#include "proc_vmstat.hpp"
+#include "proc_netstat.hpp"
+
 #include "utils.h"
 #include "json/json.h"
 #include "sniffer.hpp"
