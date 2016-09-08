@@ -70,13 +70,8 @@ public:
 	friend std::ostream& operator<< (std::ostream &os, const Traffic &traffic) {
 		os << traffic.speed_in << " " << traffic.speed_out << " " << traffic.total_in << " " << traffic.total_out << std::endl;
 		return os;
-	}
+	};
 };
-
-// std::ostream& operator<< (std::ostream &os, const Traffic &traffic) {
-// 	os << traffic.speed_in << " " << traffic.speed_out << " " << traffic.total_in << " " << traffic.total_out << std::endl;
-// 	return os;
-// }
 
 class TrafficData {
 private:

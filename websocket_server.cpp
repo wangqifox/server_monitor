@@ -129,21 +129,11 @@ void start_server(int port, int delay) {
     thread proc_thread;
     thread http_thread;
 
-    // try {
-    //     sniffer_thread = thread(bind(&WebsocketServer::start_sniffer, websocket_server));
-    // } catch(const std::exception& e) {
-    //     // std::cout << "Caught exception \"" << e.what() << "\"\n";
-    //     std::cout << "not root " << e.what() << std::endl;
-    // }
-
     try {
         sniffer_thread = thread(bind(&WebsocketServer::start_sniffer, websocket_server));
         process_thread = thread(bind(&WebsocketServer::process_messages, websocket_server));
-        
         proc_thread = thread(bind(&WebsocketServer::start_proc, websocket_server));
         http_thread = thread(http_server, port+1);
-        
-
     } catch(const std::exception& e) {
         std::cout << "Caught exception \"" << e.what() << "\"\n";
     }
