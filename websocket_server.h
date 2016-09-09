@@ -10,8 +10,8 @@
 #include <unistd.h>
 #include <set>
 
-#include "post_data.h"
-#include "sniffer.hpp"
+// #include "post_data.h"
+// #include "sniffer.hpp"
 
 typedef websocketpp::server<websocketpp::config::asio> server;
 
@@ -24,10 +24,6 @@ using namespace std;
 
 typedef server::message_ptr message_ptr;
 
-// extern Cpu readCpuStat();
-// extern MemInfo readMemInfo();
-// extern Vmstat readVmstat();
-// extern Netstat readNetstat();
 
 class WebsocketServer{
 private:
@@ -39,26 +35,25 @@ private:
     void on_open(connection_hdl hdl);
     void on_close(connection_hdl hdl);
 
-    ServerData *serverData;
+    // ServerData *serverData;
 
-    Sniffer* _sniffer;
-    IP::address_type ip_addr;
-    time_t seconds;
+    // Sniffer* _sniffer;
+    // IP::address_type ip_addr;
+    // time_t seconds;
 
     int port;
-    int delay;
 public:
     void run();
-    void process_messages();
-    bool callback(const Packet &packet);
-    void traverse();
-    void start_sniffer();
-    void start_proc();
+    void send_data(string data);
+    // void process_messages();
+    // bool callback(const Packet &packet);
+    // void traverse();
+    // void start_sniffer();
+    // void start_proc();
     
-    WebsocketServer(int port, int delay) {
+    WebsocketServer(int port) {
         this->port = port;
-        this->delay = delay;
-        serverData = new ServerData(&m_server, &m_connections);
+        // serverData = new ServerData(&m_server, &m_connections);
 
         m_server.clear_access_channels(websocketpp::log::alevel::all);
         m_server.set_access_channels(websocketpp::log::alevel::connect);

@@ -96,7 +96,7 @@ public:
 
 class Cpu {
 public:
-    time_t time;
+    time_t time_stamp;
     vector<CpuTime> cpu;
     unsigned long long ctxt;
     unsigned long long processes;
@@ -104,7 +104,7 @@ public:
     unsigned long long procs_blocked;
 
     friend ostream& operator<< (ostream &os, Cpu &cpu) {
-        os << "time: " << cpu.time << endl
+        os << "time: " << cpu.time_stamp << endl
             << "cpu: " << endl;
         for(CpuTime cpuTime : cpu.cpu) {
             os << "\t" << cpuTime << endl;
@@ -116,6 +116,7 @@ public:
 
         return os;
     }
+
     friend vector<CpuRate> cpuRate(const Cpu &cpu1, const Cpu &cpu2) {
         vector<CpuRate> cpuRateVec;
         for(size_t i = 0; i < cpu1.cpu.size(); i++) {
@@ -154,18 +155,15 @@ public:
         }
         return cpuRateVec;
     }
-};
 
-namespace{
-    Cpu readCpuStat(){
+    void readCpuStat() {
         ifstream in(CPUFILE);
         string line;
-        Cpu cpu;
-        cpu.time = time(NULL);
-        if(in){
-            while(getline(in, line)){
+        time_stamp = time(NULL);
+        if(in) {
+            while(getline(in, line)) {
                 vector<string> words = getWords(line);
-                if(words[0].find("cpu") == 0){
+                if(words[0].find("cpu") == 0) {
                     CpuTime cpuTime;
                     cpuTime.id = words[0];
                     cpuTime.user = stoull(words[1]);
@@ -180,20 +178,20 @@ namespace{
                     if(words.size() >= 10) cpuTime.guest = stoull(words[9]);
                     if(words.size() >= 11) cpuTime.guest_nice = stoull(words[10]);
 
-                    cpu.cpu.push_back(cpuTime);
+                    cpu.push_back(cpuTime);
                 } else if(words[0] == "ctxt") {
-                    cpu.ctxt = stoull(words[1]);
+                    ctxt = stoull(words[1]);
                 } else if(words[0] == "processes") {
-                    cpu.processes = stoull(words[1]);
+                    processes = stoull(words[1]);
                 } else if(words[0] == "procs_running") {
-                    cpu.procs_running = stoull(words[1]);
+                    procs_running = stoull(words[1]);
                 } else if(words[0] == "procs_blocked") {
-                    cpu.procs_blocked = stoull(words[1]);
+                    procs_blocked = stoull(words[1]);
                 }
             }
         }
         in.close();
-        return cpu;
     }
-}
+};
+
 #endif

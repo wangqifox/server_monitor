@@ -15,7 +15,7 @@ const string NETSTATFILE = "/proc/net/netstat";
 
 class Netstat {
 public:
-    time_t time;
+    time_t time_stamp;
     unsigned long long InNoRoutes;
     unsigned long long InTruncatedPkts;
     unsigned long long InMcastPkts;
@@ -29,11 +29,11 @@ public:
     unsigned long long InBcastOctets;
     unsigned long long OutBcastOctets;
 
-    Netstat():time(0),InNoRoutes(0),InTruncatedPkts(0),InMcastPkts(0),OutMcastPkts(0),InBcastPkts(0),OutBcastPkts(0),
+    Netstat():time_stamp(0),InNoRoutes(0),InTruncatedPkts(0),InMcastPkts(0),OutMcastPkts(0),InBcastPkts(0),OutBcastPkts(0),
                 InOctets(0),OutOctets(0),InMcastOctets(0),OutMcastOctets(0),InBcastOctets(0),OutBcastOctets(0){}
 
     friend ostream& operator<< (ostream &os, Netstat &netstat) {
-        os << netstat.time << " " 
+        os << netstat.time_stamp << " " 
             << netstat.InNoRoutes << " " 
             << netstat.InTruncatedPkts << " " 
             << netstat.InMcastPkts << " " 
@@ -48,6 +48,7 @@ public:
             << netstat.OutBcastOctets;
         return os;
     }
+
     friend Netstat operator- (const Netstat &netstat1, const Netstat &netstat2) {
         Netstat netstat;
         netstat.InNoRoutes = netstat1.InNoRoutes - netstat2.InNoRoutes;
@@ -64,39 +65,36 @@ public:
         netstat.OutBcastOctets = netstat1.OutBcastOctets - netstat2.OutBcastOctets;
         return netstat;
     }
-};
 
-namespace{
-    Netstat readNetstat() {
+    void readNetstat() {
         ifstream in(NETSTATFILE);
         string line;
-        Netstat netstat;
-        netstat.time = time(NULL);
-        if(in){
+        time_stamp = time(NULL);
+        if(in) {
             getline(in, line);
-            if(line.find("TcpExt") != 0) return netstat;
+            if(line.find("TcpExt") != 0) return;
             getline(in, line);
-            if(line.find("TcpExt") != 0) return netstat;
+            if(line.find("TcpExt") != 0) return;
             getline(in, line);
-            if(line.find("IpExt") != 0) return netstat;
+            if(line.find("IpExt") != 0) return;
             getline(in, line);
-            if(line.find("IpExt") != 0) return netstat;
+            if(line.find("IpExt") != 0) return;
             vector<string> words = getWords(line);
-            netstat.InNoRoutes = stoull(words[1]);
-            netstat.InTruncatedPkts = stoull(words[2]);
-            netstat.InMcastPkts = stoull(words[3]);
-            netstat.OutMcastPkts = stoull(words[4]);
-            netstat.InBcastPkts = stoull(words[5]);
-            netstat.OutBcastPkts = stoull(words[6]);
-            netstat.InOctets = stoull(words[7]);
-            netstat.OutOctets = stoull(words[8]);
-            netstat.InMcastOctets = stoull(words[9]);
-            netstat.OutMcastOctets = stoull(words[10]);
-            netstat.InBcastOctets = stoull(words[11]);
-            netstat.OutBcastOctets = stoull(words[12]);
+            InNoRoutes = stoull(words[1]);
+            InTruncatedPkts = stoull(words[2]);
+            InMcastPkts = stoull(words[3]);
+            OutMcastPkts = stoull(words[4]);
+            InBcastPkts = stoull(words[5]);
+            OutBcastPkts = stoull(words[6]);
+            InOctets = stoull(words[7]);
+            OutOctets = stoull(words[8]);
+            InMcastOctets = stoull(words[9]);
+            OutMcastOctets = stoull(words[10]);
+            InBcastOctets = stoull(words[11]);
+            OutBcastOctets = stoull(words[12]);
         }
         in.close();
-        return netstat;
     }
-}
+};
+
 #endif

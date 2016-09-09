@@ -1,44 +1,16 @@
-#include <iostream>
-#include <time.h>
-#include <unistd.h>
-#include <sstream>
-#include <fstream>
-#include <cstring>
-#include <thread>
-#include <mutex>
-
 #include "post_data.h"
 #include "utils.h"
 #include "json/json.h"
 using namespace std;
 
-void ServerData::post(string data) {
-    for (auto it : *m_connections) {
-        server::connection_ptr con = m_server->get_con_from_hdl(it);
-        con->send(data);
-    }
-}
-
-void ServerData::add_cpu(Cpu& cpu) {
-    cpu_repository.add(cpu);
-}
-
-void ServerData::add_meminfo(MemInfo& meminfo) {
-    memInfo_repository.add(meminfo);
-}
-
-void ServerData::add_vmstat(Vmstat& vmstat) {
-    vmstat_repository.add(vmstat);
-}
-
-void ServerData::add_netstat(Netstat& netstat) {
-    netstat_repository.add(netstat);
+void PostData::post(string data) {
+	websocket_server->send_data(data);
 }
 
 
-void ServerData::post_cpu() {
+void PostData::post_cpu() {
     Json::Value* root = NULL;
-    Cpu cpu = cpu_repository.fetch();
+    Cpu cpu = perf_data->cpu_buffer.fetch();
 
     if(cpu_before == NULL) {
         cpu_before = new Cpu(cpu);
@@ -49,7 +21,7 @@ void ServerData::post_cpu() {
 
     root = new Json::Value();
     (*root)["type"] = "cpu";
-    (*root)["time"] = tostring(cpu.time);
+    (*root)["time"] = tostring(cpu.time_stamp);
     for(CpuRate cpuRate : cpuRateVec){
         Json::Value cpu;
         cpu["id"] = cpuRate.id;
@@ -76,13 +48,13 @@ void ServerData::post_cpu() {
     post(json_str);
 }
 
-void ServerData::post_meminfo() {
+void PostData::post_meminfo() {
     Json::Value* mem = NULL;
-    MemInfo meminfo = memInfo_repository.fetch();
+    MemInfo meminfo = perf_data->memInfo_buffer.fetch();
 
     mem = new Json::Value();
     (*mem)["type"] = "mem";
-    (*mem)["time"] = tostring(meminfo.time);
+    (*mem)["time"] = tostring(meminfo.time_stamp);
     (*mem)["memTotal"] = tostring(meminfo.memTotal);
     (*mem)["memFree"] = tostring(meminfo.memFree);
     (*mem)["buffers"] = tostring(meminfo.buffers);
@@ -98,9 +70,9 @@ void ServerData::post_meminfo() {
     
 }
 
-void ServerData::post_vmstat() {
+void PostData::post_vmstat() {
     Json::Value* disk = NULL;
-    Vmstat vmstat = vmstat_repository.fetch();
+    Vmstat vmstat = perf_data->vmstat_buffer.fetch();
 
     if(vmstat_before == NULL) {
         vmstat_before = new Vmstat(vmstat);
@@ -110,9 +82,9 @@ void ServerData::post_vmstat() {
     disk = new Json::Value();
     (*disk)["type"] = "disk";
     Vmstat vmstatDelta = vmstat - *vmstat_before;
-    (*disk)["time"] = tostring(vmstat.time);
-    (*disk)["read"] = tostring(vmstatDelta.pgpgin * page_size);
-    (*disk)["write"] = tostring(vmstatDelta.pgpgout * page_size);
+    (*disk)["time"] = tostring(vmstat.time_stamp);
+    (*disk)["read"] = tostring(vmstatDelta.pgpgin * perf_data->page_size);
+    (*disk)["write"] = tostring(vmstatDelta.pgpgout * perf_data->page_size);
 
     delete vmstat_before;
     vmstat_before = new Vmstat(vmstat);
@@ -125,9 +97,9 @@ void ServerData::post_vmstat() {
 
 }
 
-void ServerData::post_netstat() {
+void PostData::post_netstat() {
     Json::Value* net = NULL;
-    Netstat netstat = netstat_repository.fetch();
+    Netstat netstat = perf_data->netstat_buffer.fetch();
 
     if(netstat_before == NULL) {
         netstat_before = new Netstat(netstat);
@@ -137,7 +109,7 @@ void ServerData::post_netstat() {
     net = new Json::Value();
     (*net)["type"] = "net";
     Netstat netstatDelta = netstat - *netstat_before;
-    (*net)["time"] = tostring(netstat.time);
+    (*net)["time"] = tostring(netstat.time_stamp);
     (*net)["receive"] = tostring(netstatDelta.InOctets);
     (*net)["send"] = tostring(netstatDelta.OutOctets);
 
@@ -151,103 +123,68 @@ void ServerData::post_netstat() {
     post(json_str);
 }
 
-void ServerData::post_traffic() {
+void PostData::post_traffic() {
+    std::list<std::pair<IP::address_type, Traffic> > traffic_list = perf_data->trafficData.fetch();
+    Json::Value* traffic_json = NULL;
+    traffic_json = new Json::Value();
+    (*traffic_json)["type"] = "traffic";
 
+    for(auto it = traffic_list.begin(); it != traffic_list.end(); ++it) {
+        Traffic& traffic = it->second;
 
-    try {
-        std::list<std::pair<IP::address_type, Traffic> > traffic_list = trafficData.fetch();
-        Json::Value* traffic_json = NULL;
-        traffic_json = new Json::Value();
-        (*traffic_json)["type"] = "traffic";
-
-        // int speedin = 0;
-        // int speedout = 0;
-        for(auto it = traffic_list.begin(); it != traffic_list.end(); ++it) {
-            Traffic& traffic = it->second;
-
-            Json::Value ip;
-            // speedin += traffic.getSpeedIn();
-            // speedout += traffic.getSpeedOut();
-            ip["speed_in"] = tostring(traffic.getSpeedIn());
-            ip["speed_out"] = tostring(traffic.getSpeedOut());
-            ip["total_in"] = tostring(traffic.getTotalIn());
-            ip["total_out"] = tostring(traffic.getTotalOut());
-            
-
-            (*traffic_json)[traffic.getAddress()] = ip;
-        }
-
-        // cout << speedin / 1024 << " " << speedout / 1024 << endl;
-        Json::FastWriter writer;
-        string json_str = writer.write(*traffic_json);
-        // cout << json_str << endl;
-        delete traffic_json;
-
-        post(json_str);
-
-        // std::list<std::pair<IP::address_type, Traffic> > traffic_list = trafficData.getList();
-        // cout << "======traffic=====" << endl;
-        // for(auto it = traffic_list.begin(); it != traffic_list.end(); ++it) {
-        //     Traffic& traffic = it->second;
-        //     cout << it->first << " : " << traffic << endl;
-        // }
-
-
+        Json::Value ip;
+        ip["speed_in"] = tostring(traffic.getSpeedIn());
+        ip["speed_out"] = tostring(traffic.getSpeedOut());
+        ip["total_in"] = tostring(traffic.getTotalIn());
+        ip["total_out"] = tostring(traffic.getTotalOut());
         
-
-    } catch(const std::exception& e) {
-        std::cout << "Caught post_traffic exception \"" << e.what() << "\"\n";
+        (*traffic_json)[traffic.getAddress()] = ip;
     }
 
+    Json::FastWriter writer;
+    string json_str = writer.write(*traffic_json);
+    delete traffic_json;
 
-    
+    post(json_str);
 }
 
 
-void cpu_info_task(ServerData* serverData) {
-    while(true){
-        serverData->post_cpu();
-    }
+void PostData::post_cpu_task() {
+	while(true) {
+		post_cpu();
+	}
+}
+void PostData::post_meminfo_task() {
+	while(true) {
+		post_meminfo();
+	}
+}
+void PostData::post_vmstat_task() {
+	while(true) {
+		post_vmstat();
+	}
+}
+void PostData::post_netstat_task() {
+	while(true) {
+		post_netstat();
+	}
+}
+void PostData::post_traffic_task() {
+	while(true) {
+		post_traffic();
+	}
 }
 
-void mem_info_task(ServerData* serverData) {
-    while(true){
-        serverData->post_meminfo();
-    }
-    
-}
+void PostData::start() {
+	thread cpu_thread(bind(&PostData::post_cpu_task, this));
+	thread mem_thread(bind(&PostData::post_meminfo_task, this));
+	thread disk_thread(bind(&PostData::post_vmstat_task, this));
+	thread net_thread(bind(&PostData::post_netstat_task, this));
+	thread traffic_thread(bind(&PostData::post_traffic_task, this));
 
-void disk_info_task(ServerData* serverData) {
-    while(true){
-        serverData->post_vmstat();
-    }
-    
-}
-
-void net_info_task(ServerData* serverData) {
-    while(true){
-        serverData->post_netstat();
-    }
-    
-}
-
-void traffic_info_task(ServerData* serverData) {
-    while(true) {
-        serverData->post_traffic();
-    }
-}
-
-void post_data(ServerData* serverData, int delay) {
-    thread cpu_thread(cpu_info_task, serverData);
-    thread mem_thread(mem_info_task, serverData);
-    thread disk_thread(disk_info_task, serverData);
-    thread net_thread(net_info_task, serverData);
-    thread traffic_thread(traffic_info_task, serverData);
-
-    cpu_thread.join();
+	cpu_thread.join();
     mem_thread.join();
     disk_thread.join();
     net_thread.join();
     traffic_thread.join();
 }
-

@@ -15,22 +15,23 @@ const string VMSTATFILE = "/proc/vmstat";
 
 class Vmstat {
 public:
-    time_t time;
+    time_t time_stamp;
     unsigned long long pgpgin;
     unsigned long long pgpgout;
     unsigned long long pswpin;
     unsigned long long pswpout;
 
-    Vmstat():time(0), pgpgin(0),pgpgout(0),pswpin(0),pswpout(0){}
+    Vmstat():time_stamp(0), pgpgin(0),pgpgout(0),pswpin(0),pswpout(0){}
 
     friend ostream& operator<< (ostream &os, Vmstat &vmstat) {
-        os << "time: " << vmstat.time << " "
+        os << "time: " << vmstat.time_stamp << " "
             << "pgpgin: " << vmstat.pgpgin << " "
             << "pgpgout: " << vmstat.pgpgout << " " 
             << "pswpin: " << vmstat.pswpin << " "
             << "pswpout: " << vmstat.pswpout;
         return os;
     }
+
     friend Vmstat operator- (const Vmstat &vmstat1, const Vmstat &vmstat2) {
         Vmstat vmstat;
         vmstat.pgpgin = vmstat1.pgpgin - vmstat2.pgpgin;
@@ -39,30 +40,28 @@ public:
         vmstat.pswpout = vmstat1.pswpout - vmstat2.pswpout;
         return vmstat;
     }
-};
 
-namespace{
-    Vmstat readVmstat() {
+    void readVmstat() {
         ifstream in(VMSTATFILE);
         string line;
-        Vmstat vmstat;
-        vmstat.time = time(NULL);
-        if(in){
+        time_stamp = time(NULL);
+        if(in) {
             while(getline(in, line)) {
                 vector<string> words = getWords(line);
-                if(words[0] == "pgpgin"){
-                    vmstat.pgpgin = stoull(words[1]);
-                } else if(words[0] == "pgpgout"){
-                    vmstat.pgpgout = stoull(words[1]);
-                } else if(words[0] == "pswpin"){
-                    vmstat.pswpin = stoull(words[1]);
-                } else if(words[0] == "pswpout"){
-                    vmstat.pswpout = stoull(words[1]);
+                if(words[0] == "pgpgin") {
+                    pgpgin = stoull(words[1]);
+                } else if(words[0] == "pgpgout") {
+                    pgpgout = stoull(words[1]);
+                } else if(words[0] == "pswpin") {
+                    pswpin = stoull(words[1]);
+                } else if(words[0] == "pswpout") {
+                    pswpout = stoull(words[1]);
                 }
             }
         }
         in.close();
-        return vmstat;
     }
-}
+
+};
+
 #endif
