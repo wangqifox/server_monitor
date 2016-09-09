@@ -5,7 +5,7 @@
 #include <unistd.h>
 
 #include "websocket_server.h"
-#include "httpd.h"
+#include "httpd.hpp"
 #include "perf_data.hpp"
 #include "sniffer.hpp"
 #include "proc_main.hpp"
@@ -25,6 +25,7 @@ void start_server(int port, int delay) {
 
     TrafficSniffer* sniffer = new TrafficSniffer(perf_data);
     PostData* post_data = new PostData(websocket_server, perf_data);
+    HttpServer* http_server = new HttpServer(port+1);
 
     thread sniffer_thread;
     thread post_thread;
@@ -38,7 +39,7 @@ void start_server(int port, int delay) {
 
         proc_thread = thread(start_proc, perf_data, delay);
 
-        http_thread = thread(http_server, port+1);
+        http_thread = thread(bind(&HttpServer::start, http_server));
     } catch(const std::exception& e) {
         std::cout << "Caught exception \"" << e.what() << "\"\n";
     }
