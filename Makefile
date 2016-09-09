@@ -7,11 +7,11 @@ monitor : main.o websocket_server.o utils.o post_data.o libjson.a libboost_chron
 
 main.o : main.cpp
 	$(CC) $(CPPFLAGS) -o $@ -c $^
-post_data.o : post_data.cpp
-	$(CC) $(CPPFLAGS) -o $@ -c $^
 utils.o : utils.cpp
 	$(CC) $(CPPFLAGS) -o $@ -c $^
 
+post_data.o : post_data.cpp
+	$(CC) $(CPPFLAGS) -o $@ -c $^
 websocket_server.o: websocket_server.cpp
 	$(CC) $(CPPFLAGS) -o $@ -c $^
 
