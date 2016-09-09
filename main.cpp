@@ -12,6 +12,8 @@
 #include "post_data.h"
 using namespace std;
 
+const static string VERSION = "version 1.0";
+
 void start_server(int port, int delay) {
     WebsocketServer* websocket_server;
     try {
@@ -55,7 +57,7 @@ int main(int argc, char **argv) {
     int port = 9002;
     int delay = 1;
     char ch;
-    while((ch = getopt(argc, argv, "p:t:")) != EOF) {
+    while((ch = getopt(argc, argv, "p:t:v")) != EOF) {
         switch(ch) {
             case 'p':
                 port = atoi(optarg);
@@ -63,6 +65,9 @@ int main(int argc, char **argv) {
             case 't':
                 delay = atoi(optarg);
                 break;
+            case 'v':
+                cout << VERSION << endl;
+                exit(0);
         }
     }
 
