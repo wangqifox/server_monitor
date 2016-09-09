@@ -27,7 +27,6 @@ void start_proc(PerfData* perf_data, int delay) {
 
         sleep(delay);
     }
-
 }
 
 #endif

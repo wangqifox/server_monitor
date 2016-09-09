@@ -1,5 +1,5 @@
 CC=g++
-CPPFLAGS=-Wall -std=c++11 -g -I. -I./include -I./pcap -I./boost/include/boost-1_61
+CPPFLAGS=-Wall -std=c++11 -g -I. -I./pcap -I./boost/include/boost-1_61
 LDFLAGS=-pthread -L. -static-libstdc++ -Wl,--rpath=./lib -Wl,--dynamic-linker=./lib/ld-linux-x86-64.so.2
 
 monitor : main.o websocket_server.o httpd.o utils.o post_data.o libjson.a libboost_chrono.a libboost_system.a libtins.a libpcap.a
