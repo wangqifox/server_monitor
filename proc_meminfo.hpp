@@ -7,7 +7,7 @@
 #include <time.h>
 #include <unistd.h>
 
-#include "utils.h"
+#include "utils.hpp"
 
 using namespace std;
 
@@ -43,7 +43,7 @@ public:
         time_stamp = time(NULL);
         if(in) {
             while(getline(in, line)) {
-                vector<string> words = getWords(line);
+                vector<string> words = Util::getWords(line);
                 if(words[0].find("MemTotal") == 0) {
                     memTotal = stoull(words[1]);
                 } else if(words[0].find("MemFree") == 0) {

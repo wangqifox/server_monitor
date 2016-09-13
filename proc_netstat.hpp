@@ -7,7 +7,7 @@
 #include <time.h>
 #include <unistd.h>
 
-#include "utils.h"
+#include "utils.hpp"
 
 using namespace std;
 
@@ -79,7 +79,7 @@ public:
             if(line.find("IpExt") != 0) return;
             getline(in, line);
             if(line.find("IpExt") != 0) return;
-            vector<string> words = getWords(line);
+            vector<string> words = Util::getWords(line);
             InNoRoutes = stoull(words[1]);
             InTruncatedPkts = stoull(words[2]);
             InMcastPkts = stoull(words[3]);

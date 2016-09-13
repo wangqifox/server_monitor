@@ -7,9 +7,10 @@
 #include "proc_meminfo.hpp"
 #include "proc_vmstat.hpp"
 #include "proc_netstat.hpp"
+#include "progress_perf.hpp"
 
 #include "buffer.h"
-#include "utils.h"
+#include "utils.hpp"
 #include "lru.hpp"
 
 using namespace Tins;
@@ -155,17 +156,18 @@ public:
 
 class PerfData {
 public:
-	int page_size;
-	Buffer<Cpu> cpu_buffer;
-	Buffer<MemInfo> memInfo_buffer;
-	Buffer<Vmstat> vmstat_buffer;
-	Buffer<Netstat> netstat_buffer;
+    int page_size;
+    Buffer<Cpu> cpu_buffer;
+    Buffer<MemInfo> memInfo_buffer;
+    Buffer<Vmstat> vmstat_buffer;
+    Buffer<Netstat> netstat_buffer;
+    Buffer<ProgressesPerf> progress_perf_buffer;
 
-	TrafficData trafficData = TrafficData(100);
+    TrafficData trafficData = TrafficData(100);
 
-	PerfData() {
-		page_size = getPageSize();
-	}
+    PerfData() {
+        page_size = Util::getPageSize();
+    }
 };
 
 #endif

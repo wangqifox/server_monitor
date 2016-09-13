@@ -1,10 +1,10 @@
 #include "post_data.h"
-#include "utils.h"
+#include "utils.hpp"
 #include "json/json.h"
 using namespace std;
 
 void PostData::post(string data) {
-	websocket_server->send_data(data);
+    websocket_server->send_data(data);
 }
 
 
@@ -25,17 +25,17 @@ void PostData::post_cpu() {
     for(CpuRate cpuRate : cpuRateVec){
         Json::Value cpu;
         cpu["id"] = cpuRate.id;
-        cpu["total"] = doubleTostring(cpuRate.total*100, 2);
-        cpu["user"] = doubleTostring(cpuRate.user*100, 2);
-        cpu["nice"] = doubleTostring(cpuRate.nice*100, 2);
-        cpu["system"] = doubleTostring(cpuRate.system*100, 2);
-        cpu["idle"] = doubleTostring(cpuRate.idle*100, 2);
-        cpu["iowait"] = doubleTostring(cpuRate.iowait*100, 2);
-        cpu["irq"] = doubleTostring(cpuRate.irq*100, 2);
-        cpu["softirq"] = doubleTostring(cpuRate.softirq*100, 2);
-        cpu["steal"] = doubleTostring(cpuRate.steal*100, 2);
-        cpu["guest"] = doubleTostring(cpuRate.guest*100, 2);
-        cpu["guest_nice"] = doubleTostring(cpuRate.guest_nice*100, 2);
+        cpu["total"] = Util::doubleTostring(cpuRate.total*100, 2);
+        cpu["user"] = Util::doubleTostring(cpuRate.user*100, 2);
+        cpu["nice"] = Util::doubleTostring(cpuRate.nice*100, 2);
+        cpu["system"] = Util::doubleTostring(cpuRate.system*100, 2);
+        cpu["idle"] = Util::doubleTostring(cpuRate.idle*100, 2);
+        cpu["iowait"] = Util::doubleTostring(cpuRate.iowait*100, 2);
+        cpu["irq"] = Util::doubleTostring(cpuRate.irq*100, 2);
+        cpu["softirq"] = Util::doubleTostring(cpuRate.softirq*100, 2);
+        cpu["steal"] = Util::doubleTostring(cpuRate.steal*100, 2);
+        cpu["guest"] = Util::doubleTostring(cpuRate.guest*100, 2);
+        cpu["guest_nice"] = Util::doubleTostring(cpuRate.guest_nice*100, 2);
         (*root)[cpuRate.id] = cpu;
     }
     delete cpu_before;
@@ -150,39 +150,39 @@ void PostData::post_traffic() {
 
 
 void PostData::post_cpu_task() {
-	while(true) {
-		post_cpu();
-	}
+    while(true) {
+        post_cpu();
+    }
 }
 void PostData::post_meminfo_task() {
-	while(true) {
-		post_meminfo();
-	}
+    while(true) {
+        post_meminfo();
+    }
 }
 void PostData::post_vmstat_task() {
-	while(true) {
-		post_vmstat();
-	}
+    while(true) {
+        post_vmstat();
+    }
 }
 void PostData::post_netstat_task() {
-	while(true) {
-		post_netstat();
-	}
+    while(true) {
+        post_netstat();
+    }
 }
 void PostData::post_traffic_task() {
-	while(true) {
-		post_traffic();
-	}
+    while(true) {
+        post_traffic();
+    }
 }
 
 void PostData::start() {
-	thread cpu_thread(bind(&PostData::post_cpu_task, this));
-	thread mem_thread(bind(&PostData::post_meminfo_task, this));
-	thread disk_thread(bind(&PostData::post_vmstat_task, this));
-	thread net_thread(bind(&PostData::post_netstat_task, this));
-	thread traffic_thread(bind(&PostData::post_traffic_task, this));
+    thread cpu_thread(bind(&PostData::post_cpu_task, this));
+    thread mem_thread(bind(&PostData::post_meminfo_task, this));
+    thread disk_thread(bind(&PostData::post_vmstat_task, this));
+    thread net_thread(bind(&PostData::post_netstat_task, this));
+    thread traffic_thread(bind(&PostData::post_traffic_task, this));
 
-	cpu_thread.join();
+    cpu_thread.join();
     mem_thread.join();
     disk_thread.join();
     net_thread.join();
