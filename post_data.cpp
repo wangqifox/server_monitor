@@ -177,6 +177,7 @@ void PostData::post_progresses() {
         //     << endl;
         
         Json::Value rate;
+        rate["pid"] = tostring(progress_rate.pid);
         rate["cmdline"] = progress_rate.cmdline;
         rate["cpu"] = tostring(progress_rate.rate);
         rate["task_state"] = progress_rate.task_state;

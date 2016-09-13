@@ -740,6 +740,27 @@ $(function(){
             }
             $(".table").removeClass('hide');
             $("#myTable").html(myHtml);
+        } else if (data.type == 'progresses') {
+            var data = data.data;
+            console.log(data);
+            // var keys = Object.keys(data);
+            // console.log(keys);
+            // for (var i = 0; i < array.length && i < 20; i++) {
+            //     console.log(key);
+            // }
+            var myHtml = "";
+            for (var key in data) {
+                console.log(key);
+                var v = data[key];
+                myHtml += "<tr>" +
+                "<td>" + v.pid + "</td>" +
+                "<td>" + (v.cpu * 100).toFixed(2) + "</td>" +
+                "<td>" + (v.mem / 1024 / 1024).toFixed(0) + "</td>" +
+                "<td>" + v.task_cpu + "</td>" +
+                "<td>" + v.cmdline + "</td>" +
+                "</tr>"
+            }
+            $("#progresses").html(myHtml);
         }
 
     }
