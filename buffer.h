@@ -12,7 +12,7 @@ private:
     condition_variable buffer_not_full;
     condition_variable buffer_not_empty;
 public:
-    void add(T t){
+    void add(T t) {
         unique_lock<mutex> lock(mtx);
         while(((write_position + 1) % buffer_size) == read_position) {
             buffer_not_full.wait(lock);

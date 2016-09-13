@@ -17,7 +17,7 @@ private:
     Cpu* cpu_before;
     Vmstat* vmstat_before;
     Netstat* netstat_before;
-
+    ProgressesPerf* progresses_perf_before;
 public:
     PostData(WebsocketServer* websocket_server, PerfData* perf_data):websocket_server(websocket_server), perf_data(perf_data) {}
 
@@ -25,6 +25,7 @@ public:
         delete cpu_before;
         delete vmstat_before;
         delete netstat_before;
+        delete progresses_perf_before;
     }
 
     void post(string data);
@@ -34,12 +35,14 @@ public:
     void post_vmstat();
     void post_netstat();
     void post_traffic();
+    void post_progresses();
 
     void post_cpu_task();
     void post_meminfo_task();
     void post_vmstat_task();
     void post_netstat_task();
     void post_traffic_task();
+    void post_progresses_task();
 
     void start();
 };

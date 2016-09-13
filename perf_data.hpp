@@ -161,7 +161,7 @@ public:
     Buffer<MemInfo> memInfo_buffer;
     Buffer<Vmstat> vmstat_buffer;
     Buffer<Netstat> netstat_buffer;
-    Buffer<ProgressesPerf> progress_perf_buffer;
+    Buffer<ProgressesPerf*> progress_perf_buffer;
 
     TrafficData trafficData = TrafficData(100);
 

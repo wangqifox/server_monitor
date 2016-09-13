@@ -9,6 +9,7 @@
 #include "perf_data.hpp"
 #include "sniffer.hpp"
 #include "proc_main.hpp"
+#include "progress_main.hpp"
 #include "post_data.h"
 using namespace std;
 
@@ -32,6 +33,7 @@ void start_server(int port, int delay) {
     thread sniffer_thread;
     thread post_thread;
     thread proc_thread;
+    thread progress_thread;
     thread http_thread;
 
     try {
@@ -40,6 +42,8 @@ void start_server(int port, int delay) {
         post_thread = thread(bind(&PostData::start, post_data));
 
         proc_thread = thread(start_proc, perf_data, delay);
+
+        progress_thread = thread(start_progress_monitor, perf_data, delay);
 
         http_thread = thread(bind(&HttpServer::start, http_server));
     } catch(const std::exception& e) {
@@ -50,6 +54,7 @@ void start_server(int port, int delay) {
     post_thread.join();
     sniffer_thread.join();
     proc_thread.join();
+    progress_thread.join();
     http_thread.join();
 }
 

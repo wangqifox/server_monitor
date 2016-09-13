@@ -15,7 +15,7 @@ void PostData::post_cpu() {
     if(cpu_before == NULL) {
         cpu_before = new Cpu(cpu);
         return;
-    } 
+    }
 
     vector<CpuRate> cpuRateVec = cpuRate(*cpu_before, cpu);
 
@@ -148,6 +148,57 @@ void PostData::post_traffic() {
     post(json_str);
 }
 
+void PostData::post_progresses() {
+    ProgressesPerf* progresses_perf = perf_data->progress_perf_buffer.fetch();
+    Json::Value* progresses_json = NULL;
+    progresses_json = new Json::Value();
+    (*progresses_json)["type"] = "progresses";
+    (*progresses_json)["time"] = tostring(progresses_perf->getTime());
+    Json::Value data;
+    
+
+    if(progresses_perf_before == NULL) {
+        progresses_perf_before = progresses_perf;
+        return;
+    }
+
+    map<unsigned int, ProgressRate> progress_rate = *progresses_perf - *progresses_perf_before;
+    for (auto it = progress_rate.begin(); it != progress_rate.end(); it++) {
+        ProgressRate progress_rate = it->second;
+
+        if(progress_rate.cmdline.empty() || progress_rate.rate == 0) continue;
+
+        // cout << progress_rate.pid << " " 
+        //     << progress_rate.cmdline << " " 
+        //     << progress_rate.rate << " " 
+        //     << progress_rate.task_state << " "
+        //     << progress_rate.rss * perf_data->page_size<< " "
+        //     << progress_rate.task_cpu
+        //     << endl;
+        
+        Json::Value rate;
+        rate["cmdline"] = progress_rate.cmdline;
+        rate["cpu"] = tostring(progress_rate.rate);
+        rate["task_state"] = progress_rate.task_state;
+        rate["mem"] = tostring(progress_rate.rss * perf_data->page_size);
+        rate["task_cpu"] = tostring(progress_rate.task_cpu);
+
+        data[tostring(progress_rate.pid)] = rate;
+    }
+
+    (*progresses_json)["data"] = data;
+
+    delete progresses_perf_before;
+    progresses_perf_before = progresses_perf;
+
+    Json::FastWriter writer;
+    string json_str = writer.write(*progresses_json);
+    delete progresses_json;
+
+    post(json_str);
+
+}
+
 
 void PostData::post_cpu_task() {
     while(true) {
@@ -175,16 +226,24 @@ void PostData::post_traffic_task() {
     }
 }
 
+void PostData::post_progresses_task() {
+    while(true) {
+        post_progresses();
+    }
+}
+
 void PostData::start() {
     thread cpu_thread(bind(&PostData::post_cpu_task, this));
     thread mem_thread(bind(&PostData::post_meminfo_task, this));
     thread disk_thread(bind(&PostData::post_vmstat_task, this));
     thread net_thread(bind(&PostData::post_netstat_task, this));
     thread traffic_thread(bind(&PostData::post_traffic_task, this));
+    thread progresses_thread(bind(&PostData::post_progresses_task, this));
 
     cpu_thread.join();
     mem_thread.join();
     disk_thread.join();
     net_thread.join();
     traffic_thread.join();
+    progresses_thread.join();
 }
