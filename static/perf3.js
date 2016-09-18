@@ -516,120 +516,6 @@ $(function(){
 
     var size = 60 * 5;
 
-    var sort_by = "speed_out";
-    var desc = true;
-
-    $("#ip").click(function() {
-        if (sort_by == "ip") {
-            desc = !desc;
-            $(this).html((desc ? "&#9662;" : "&#9652;") + "&nbsp;ip");
-            $("#speed_in").html("speed_in" + " (KB/s)");
-            $("#speed_out").html("speed_out" + " (KB/s)");
-            $("#total_in").html("total_in" + " (KB)");
-            $("#total_out").html("total_out" + " (KB)");
-        }
-        else {
-            sort_by = "ip";
-            desc = false;
-            $(this).html("&#9652;&nbsp;ip");
-            $("#speed_in").html("speed_in" + " (KB/s)");
-            $("#speed_out").html("speed_out" + " (KB/s)");
-            $("#total_in").html("total_in" + " (KB)");
-            $("#total_out").html("total_out" + " (KB)");
-        }
-    });
-
-    $("#speed_in").click(function() {
-        if (sort_by == "speed_in") {
-            desc = !desc;
-            $(this).html((desc ? "&#9662;" : "&#9652;") + "&nbsp;speed_in" + " (KB/s)");
-            $("#ip").html("ip");
-            $("#speed_out").html("speed_out" + " (KB/s)");
-            $("#total_in").html("total_in" + " (KB)");
-            $("#total_out").html("total_out" + " (KB)");
-        }
-        else {
-            sort_by = "speed_in";
-            desc = true;
-            $(this).html("&#9662;&nbsp;speed_in" + " (KB/s)");
-            $("#ip").html("ip");
-            $("#speed_out").html("speed_out" + " (KB/s)");
-            $("#total_in").html("total_in" + " (KB)");
-            $("#total_out").html("total_out" + " (KB)");
-        }
-    });
-
-    $("#speed_out").click(function() {
-        if (sort_by == "speed_out") {
-            desc = !desc;
-            $(this).html((desc ? "&#9662;" : "&#9652;") + "&nbsp;speed_out" + " (KB/s)");
-            $("#ip").html("ip");
-            $("#speed_in").html("speed_in" + " (KB/s)");
-            $("#total_in").html("total_in" + " (KB)");
-            $("#total_out").html("total_out" + " (KB)");
-        }
-        else {
-            sort_by = "speed_out";
-            desc = true;
-            $(this).html("&#9662;&nbsp;speed_out" + " (KB/s)");
-            $("#ip").html("ip");
-            $("#speed_in").html("speed_in" + " (KB/s)");
-            $("#total_in").html("total_in" + " (KB)");
-            $("#total_out").html("total_out" + " (KB)");
-        }
-    });
-
-    $("#total_in").click(function() {
-        if (sort_by == "total_in") {
-            desc = !desc;
-            $(this).html((desc ? "&#9662;" : "&#9652;") + "&nbsp;total_in" + " (KB)");
-            $("#ip").html("ip");
-            $("#speed_in").html("speed_in" + " (KB/s)");
-            $("#speed_out").html("speed_out" + " (KB/s)");
-            $("#total_out").html("total_out" + " (KB)");
-        }
-        else {
-            sort_by = "total_in";
-            desc = true;
-            $(this).html("&#9662;&nbsp;total_in" + " (KB)");
-            $("#ip").html("ip");
-            $("#speed_in").html("speed_in" + " (KB/s)");
-            $("#speed_out").html("speed_out" + " (KB/s)");
-            $("#total_out").html("total_out" + " (KB)");
-        }
-    });
-
-    $("#total_out").click(function() {
-        if (sort_by == "total_out") {
-            desc = !desc;
-            $(this).html((desc ? "&#9662;" : "&#9652;") + "&nbsp;total_out" + " (KB)");
-            $("#ip").html("ip");
-            $("#speed_in").html("speed_in" + " (KB/s)");
-            $("#speed_out").html("speed_out" + " (KB/s)");
-            $("#total_in").html("total_in" + " (KB)");
-        }
-        else {
-            sort_by = "total_out";
-            desc = true;
-            $(this).html("&#9662;&nbsp;total_out" + " (KB)");
-            $("#ip").html("ip");
-            $("#speed_in").html("speed_in" + " (KB/s)");
-            $("#speed_out").html("speed_out" + " (KB/s)");
-            $("#total_in").html("total_in" + " (KB)");
-        }
-    });
-
-    function compare(a1, a2) {
-        var ret = 0;
-        if (sort_by == "ip")
-            ret = a1["ip"].localeCompare(a2["ip"]);
-        else
-            ret = a1[sort_by] < a2[sort_by] ? -1 : 1;
-        if (desc)
-            ret *= -1;
-        return ret;
-    }
-
     socket.onmessage = function(event) {
         data = JSON.parse(event.data)
         // console.log(data);
@@ -654,29 +540,6 @@ $(function(){
                     }
                 }
             }
-
-            // for (var i = 0 ; i < 10 ; i++) {
-            //     for (var key in data) {
-            //         if(key.startsWith('cpu')) {
-            //             if(!cpu_data.data[key+i]) {
-            //                 cpu_data.data[key+i] = []
-            //             }
-            //             for(var cpu_key in data[key]) {
-            //                 if(!cpu_data.data[key+i][cpu_key]) {
-            //                     cpu_data.data[key+i][cpu_key] = []
-            //                 }
-            //                 cpu_data.data[key+i][cpu_key].push(data[key][cpu_key])
-            //                 if(cpu_data.data[key+i][cpu_key].length > size) {
-            //                     cpu_data.data[key+i][cpu_key].shift();
-            //                 }
-            //             }
-            //         }
-            //     }
-            // }
-            
-            // console.log(cpu_data);
-            // $("#CPU").height(250 * Object.keys(cpu_data.data).length + 100);
-            // cpuChart.resize();
             setCpus(cpu_data);
         } else if(data.type == 'mem') {
             mem_data.xAxis.push(dataToString(new Date(parseInt(data.time) * 1000)));
@@ -719,51 +582,51 @@ $(function(){
         } else if (data.type == 'traffic') {
             var array = [];
             for (key in data) {
-                array.push({"ip": key, "speed_in": data[key]["speed_in"] / 1024, "speed_out": data[key]["speed_out"] / 1024,
-                    "total_in": data[key]["total_in"] / 1024, "total_out": data[key]["total_out"] / 1024});
+                array.push({"ip": key, "speed_in": (data[key]["speed_in"] / 1024).toFixed(2), "speed_out": (data[key]["speed_out"] / 1024).toFixed(2),
+                    "total_in": (data[key]["total_in"] / 1024).toFixed(0), "total_out": (data[key]["total_out"] / 1024).toFixed(0)});
                 
             }
             array.splice(-1, 1);
 
-            array.sort(compare);
-
-            var myHtml = "";
-
-            for (var i = 0; i < array.length && i < 20; i++) {
-                myHtml += "<tr>" +
-                "<td>" + array[i].ip + "</td>" +
-                "<td>" + array[i].speed_in.toFixed(2) + "</td>" +
-                "<td>" + array[i].speed_out.toFixed(2) + "</td>" +
-                "<td>" + array[i].total_in.toFixed(0) + "</td>" +
-                "<td>" + array[i].total_out.toFixed(0) + "</td>" +
-                "</tr>"
-            }
             $(".table").removeClass('hide');
-            $("#myTable").html(myHtml);
+            trafficTable.setData(array);
+
         } else if (data.type == 'progresses') {
-            var data = data.data;
-            console.log(data);
-            // var keys = Object.keys(data);
-            // console.log(keys);
-            // for (var i = 0; i < array.length && i < 20; i++) {
-            //     console.log(key);
-            // }
-            var myHtml = "";
-            for (var key in data) {
-                console.log(key);
-                var v = data[key];
-                myHtml += "<tr>" +
-                "<td>" + v.pid + "</td>" +
-                "<td>" + (v.cpu * 100).toFixed(2) + "</td>" +
-                "<td>" + (v.mem / 1024 / 1024).toFixed(0) + "</td>" +
-                "<td>" + v.task_cpu + "</td>" +
-                "<td>" + v.cmdline + "</td>" +
-                "</tr>"
+            var list = []
+            for(var key in data.data) {
+                var v = data.data[key];
+                for(var k in v) {
+                    if (k == 'cpu') {
+                        v[k] = (v[k] * 100).toFixed(2);
+                    } else if (k == 'mem') {
+                        v[k] = (v[k] / 1024 / 1024).toFixed(0);
+                    } else {
+                        v[k] = v[k]
+                    }
+                }
+                list.push(v)
             }
-            $("#progresses").html(myHtml);
+            processTable.setData(list);
         }
 
     }
+
+    var processTable = new SortTable({
+        container:$('#process_table'),
+        column:{'pid':'int', 'cpu':'float', 'mem':'int', 'task_cpu':'int', 'cmdline':'string'},
+        max_row:20,
+        default_sort:1,
+        desc:false,
+    });
+
+    var trafficTable = new SortTable({
+        container:$('#traffic_table'),
+        column:{'ip':'string', 'speed_in':'float', 'speed_out':'float', 'total_in':'int', 'total_out':'int'},
+        max_row:20,
+        default_sort:1,
+        desc:false,
+    });
+
 
     socket.onclose = function(event) {
         // console.log("onclose")

@@ -5,7 +5,11 @@
     <title>实时性能</title>
     <script src="echarts.min.js"></script>
     <script src="jquery-2.2.4.js"></script>
+    
+    <script src="util.js"></script>
+    <script src="sortTable.js"></script>
     <script src="perf3.js"></script>
+
     <link rel="stylesheet" type="text/css" href="bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="perf.css">
 </head>
@@ -42,31 +46,31 @@
         <i class="icon iconfont">&#xe613</i>
     </a>
     
-    <table class="table">
+    <table id="process_table" class="table" style="table-layout: fixed">
         <thead>
             <tr class="info">
-                <th>pid</th>
-                <th>cpu (%)</th>
-                <th>mem (M)</th>
-                <th>core</th>
-                <th>cmdline</th>
+                <th class="pid" width="5%">pid</th>
+                <th class="cpu" width="8%">cpu (%)</th>
+                <th class="mem" width="8%">mem (M)</th>
+                <th class="task_cpu" width="5%">core</th>
+                <th class="cmdline">cmdline</th>
             </tr>
         </thead>
         <tbody id="progresses">
         </tbody>
     </table>
 
-    <table class="table hide">
+    <table id="traffic_table" class="table hide"  style="table-layout: fixed">
         <thead>
             <tr class="info">
-                <th id="ip">ip</th>
-                <th id="speed_in">speed_in (KB/s)</th>
-                <th id="speed_out">&#9662;&nbsp;speen_out (KB/s)</th>
-                <th id="total_in">total_in (KB)</th>
-                <th id="total_out">total_out (KB)</th>
+                <th class="ip">ip</th>
+                <th class="speed_in">speed_in (KB/s)</th>
+                <th class="speed_out">speen_out (KB/s)</th>
+                <th class="total_in">total_in (KB)</th>
+                <th class="total_out">total_out (KB)</th>
             </tr>
         </thead>
-        <tbody id="myTable">
+        <tbody>
         </tbody>
     </table>
 </body>

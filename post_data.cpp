@@ -166,7 +166,8 @@ void PostData::post_progresses() {
     for (auto it = progress_rate.begin(); it != progress_rate.end(); it++) {
         ProgressRate progress_rate = it->second;
 
-        if(progress_rate.cmdline.empty() || progress_rate.rate == 0) continue;
+        // if(progress_rate.cmdline.empty() || progress_rate.rate == 0) continue;
+        if(progress_rate.cmdline.empty()) continue;
 
         // cout << progress_rate.pid << " " 
         //     << progress_rate.cmdline << " " 
