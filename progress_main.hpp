@@ -1,8 +1,8 @@
 #ifndef PROGRESS_MAIN_HPP
 #define PROGRESS_MAIN_HPP
 
+#include <iostream>
 #include "progress_perf.hpp"
-
 #include "perf_data.hpp"
 
 void start_progress_monitor(PerfData* perf_data, int delay) {
@@ -11,7 +11,6 @@ void start_progress_monitor(PerfData* perf_data, int delay) {
         progresses_perf->readStat();
 
         perf_data->progress_perf_buffer.add(progresses_perf);
-
         sleep(delay);
     }
 }

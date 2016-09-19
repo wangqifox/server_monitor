@@ -18,7 +18,17 @@
 
 using namespace std;
 
+
 class Util {
+// private:
+//     // const string CPUFILE = "/proc/stat";
+
+
+//     const static int cpuCount = getCpuCount();
+    
+
+    
+
 public:
     static vector<string> getWords(string line) {
         vector<string> words;
@@ -77,10 +87,30 @@ public:
             if(boost::regex_match(ptr->d_name, what, expression))
                 files.push_back(ptr->d_name);
         }
+        closedir(dir);
         return files;
     }
-};
 
+    static int getCpuCount() {
+        static int cpuCount = 0;
+        if(cpuCount == 0) {
+            ifstream in("/proc/stat");
+            string line;
+            int count = -1;
+            if(in) {
+                while(getline(in, line)) {
+                    if(line.find("cpu") ==0)
+                        count++;
+                }
+            }
+            cpuCount = count;
+        }
+        
+        return cpuCount;
+    }
+
+    
+};
 
 template<typename T>
 string tostring(T t){

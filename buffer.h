@@ -1,6 +1,8 @@
 #ifndef BUFFER_H
 #define BUFFER_H
 
+#include <iostream>
+
 template <class T>
 class Buffer{
 private:
@@ -13,6 +15,7 @@ private:
     condition_variable buffer_not_empty;
 public:
     void add(T t) {
+        // std::cout << "add" << std::endl;
         unique_lock<mutex> lock(mtx);
         while(((write_position + 1) % buffer_size) == read_position) {
             buffer_not_full.wait(lock);

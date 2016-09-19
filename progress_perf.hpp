@@ -182,9 +182,8 @@ private:
 public:
     ProgressesPerf() {}
 
-    ProgressesPerf(ProgressesPerf& progresses_perf) {
-
-    }
+    // ProgressesPerf(ProgressesPerf& progresses_perf) {
+    // }
 
     virtual ~ProgressesPerf() {
         for (map<unsigned int, ProgressPerf*>::iterator it = progresses_map.begin(); it != progresses_map.end(); it++) {
@@ -198,11 +197,13 @@ public:
     }
 
     void readStat() {
+        Util::listDir(PROCDIR, "\\d+");
         vector<string> dir = Util::listDir(PROCDIR, "\\d+");
         for (auto it = dir.begin(); it != dir.end(); it++) {
             unsigned int pid = atoi((*it).c_str());
             progresses_map[pid] = new ProgressPerf(pid);
         }
+        dir.clear();
 
         t = time(NULL);
         cputime = readCputime();
@@ -230,10 +231,10 @@ public:
 
             if(progresses_perf.progresses_map.find(pid) != progresses_perf.progresses_map.end()) {
                 unsigned long long progress_cputime_diff = *(this_progress_perf) - *(progresses_perf.progresses_map[pid]);
-                progress_rate.rate = progress_cputime_diff / (cputime_diff * 1.0);
+                progress_rate.rate = progress_cputime_diff / (cputime_diff * 1.0) * Util::getCpuCount();
                 
             } else {
-                progress_rate.rate = this_progress_perf->getCputime() / (cputime_diff * 1.0);
+                progress_rate.rate = this_progress_perf->getCputime() / (cputime_diff * 1.0) * Util::getCpuCount();
             }
             progresses_rate.insert(pair<unsigned int, ProgressRate>(pid, progress_rate));
         }
