@@ -10,6 +10,8 @@
         this._sortby = this.ths[this.default_sort].getAttribute('class');
         this._desc = options.desc;
 
+        this._data;
+
         util.extend(this, options);
         this._initEvent();
     }
@@ -46,13 +48,24 @@
 
                 element.innerHTML = '<span>' + (this._desc ? "&#9662;" : "&#9652;") + '</span>' + element.innerHTML;
             }
-
+            this._sortshow();
         },
 
         setData: function(data) {
+            this._data = data;
+            this._sortshow();
+        },
+
+        _sortshow: function() {
+            if(this._data) {
+                this._data.sort(compare.bind(this));
+                this._show();
+            }
+        },
+
+        _show: function() {
             var myHtml = "";
-            data.sort(compare.bind(this));
-            for(var i = 0, v; v = data[i]; i++) {
+            for(var i = 0, v; v = this._data[i]; i++) {
                 if (i > this.max_row) break;
                 myHtml += "<tr>";
                 for(var key in this.column) {
@@ -61,8 +74,7 @@
                 myHtml += "</tr>";
             }
             this.tbody.innerHTML = myHtml;
-
-        }
+        },
     });
 
     function compare(a1, a2) {
