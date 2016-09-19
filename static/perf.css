@@ -89,3 +89,9 @@ th {
 .hide {
 	display:none;
 }
+
+#process_table>tbody>tr>td:last-child {
+	white-space:nowrap;
+	overflow:hidden;
+	text-overflow:ellipsis
+}
