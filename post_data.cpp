@@ -152,7 +152,7 @@ void PostData::post_progresses() {
     ProgressesPerf* progresses_perf = perf_data->progress_perf_buffer.fetch();
     Json::Value* progresses_json = NULL;
     progresses_json = new Json::Value();
-    (*progresses_json)["type"] = "progresses";
+    (*progresses_json)["type"] = "processes";
     (*progresses_json)["time"] = tostring(progresses_perf->getTime());
     Json::Value data;
     

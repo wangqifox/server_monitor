@@ -591,7 +591,7 @@ $(function(){
             $(".table").removeClass('hide');
             trafficTable.setData(array);
 
-        } else if (data.type == 'progresses') {
+        } else if (data.type == 'processes') {
             var list = []
             for(var key in data.data) {
                 var v = data.data[key];
