@@ -8,6 +8,7 @@
 #include <fstream>
 #include <vector>
 #include <map>
+#include <sstream>
 #include "utils.hpp"
 
 using namespace std;
@@ -197,11 +198,19 @@ public:
     }
 
     void readStat() {
-        Util::listDir(PROCDIR, "\\d+");
+        // Util::listDir(PROCDIR, "\\d+");
         vector<string> dir = Util::listDir(PROCDIR, "\\d+");
         for (auto it = dir.begin(); it != dir.end(); it++) {
             unsigned int pid = atoi((*it).c_str());
             progresses_map[pid] = new ProgressPerf(pid);
+
+            // vector<string> subdir = Util::listDir(tostring(PROCDIR, "/", pid, "/task"), "\\d+");
+            // for (auto it = subdir.begin(); it != subdir.end(); it++) {
+            //     // cout << *it << endl;
+            //     unsigned int pid = atoi((*it).c_str());
+            //     progresses_map[pid] = new ProgressPerf(pid);
+            // }
+            // subdir.clear();
         }
         dir.clear();
 
@@ -231,11 +240,20 @@ public:
 
             if(progresses_perf.progresses_map.find(pid) != progresses_perf.progresses_map.end()) {
                 unsigned long long progress_cputime_diff = *(this_progress_perf) - *(progresses_perf.progresses_map[pid]);
-                progress_rate.rate = progress_cputime_diff / (cputime_diff * 1.0) * Util::getCpuCount();
+                progress_rate.rate = progress_cputime_diff * Util::getCpuCount() / (cputime_diff * 1.0);
+
+                // if (progress_rate.cmdline.find("monitor") < progress_rate.cmdline.length()) {
+                //     cout << this_progress_perf->getTime() << " " << progresses_perf.progresses_map[pid]->getTime() << endl;
+                //     cout << this_progress_perf->getCputime() << " " << progresses_perf.progresses_map[pid]->getCputime() << endl;
+                //     cout << progress_cputime_diff << " " << Util::getCpuCount() << " " << cputime_diff;
+                // }
                 
             } else {
-                progress_rate.rate = this_progress_perf->getCputime() / (cputime_diff * 1.0) * Util::getCpuCount();
+                progress_rate.rate = this_progress_perf->getCputime() * Util::getCpuCount() / (cputime_diff * 1.0);
             }
+            // if (progress_rate.cmdline.find("monitor") < progress_rate.cmdline.length()) {
+            //     cout << progress_rate.pid << " " << progress_rate.cmdline << " " << progress_rate.rate << endl;
+            // }
             progresses_rate.insert(pair<unsigned int, ProgressRate>(pid, progress_rate));
         }
 

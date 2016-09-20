@@ -11,6 +11,7 @@
 #include <iomanip>
 #include <vector>
 #include <dirent.h>
+#include <string>
 
 // #include <boost/format.hpp>
 // #include <boost/algorithm/string.hpp>
@@ -77,17 +78,19 @@ public:
 
     static vector<string> listDir(string path, const string pattern) {
         struct dirent *ptr;
-        DIR *dir = opendir(path.c_str());
         vector<string> files;
-        boost::regex expression(pattern);
-        while((ptr=readdir(dir)) != NULL) {
-            // if(ptr->d_name[0] == '.')
-            //  continue;
-            boost::cmatch what;
-            if(boost::regex_match(ptr->d_name, what, expression))
-                files.push_back(ptr->d_name);
-        }
-        closedir(dir);
+        DIR *dir;
+        if ((dir = opendir(path.c_str())) != NULL) {
+            boost::regex expression(pattern);
+            while((ptr=readdir(dir)) != NULL) {
+                // if(ptr->d_name[0] == '.')
+                //  continue;
+                boost::cmatch what;
+                if(boost::regex_match(ptr->d_name, what, expression))
+                    files.push_back(ptr->d_name);
+            }
+            closedir(dir);
+        }       
         return files;
     }
 
@@ -117,6 +120,12 @@ string tostring(T t){
     stringstream ss;
     ss << t;
     return ss.str();
+}
+
+template<typename T, typename... Params>
+string tostring(const T& t, Params... params)  
+{  
+    return tostring(t) + tostring(params...);
 }
 
 #endif

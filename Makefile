@@ -20,5 +20,8 @@ websocket_server.o: websocket_server.cpp
 tar:
 	tar -czvf monitor.tar.gz monitor static lib
 
+zip:
+	zip -r monitor.zip monitor static lib
+
 clean:
 	rm -f monitor *.o
