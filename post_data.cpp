@@ -186,6 +186,24 @@ void PostData::post_progresses() {
         rate["task_cpu"] = tostring(progress_rate.task_cpu);
 
         data[tostring(progress_rate.pid)] = rate;
+
+        vector<ThreadRate> thread_rates = progress_rate.thread_rates;
+        for (auto it = thread_rates.begin(); it != thread_rates.end(); it++) {
+            ThreadRate thread_rate = *it;
+            if(thread_rate.cmdline.empty()) continue;
+
+            Json::Value rate;
+            rate["pid"] = tostring(thread_rate.tid);
+            rate["cmdline"] = thread_rate.cmdline;
+            rate["cpu"] = tostring(thread_rate.rate);
+            rate["task_state"] = thread_rate.task_state;
+            rate["mem"] = tostring(thread_rate.rss * perf_data->page_size);
+            rate["task_cpu"] = tostring(thread_rate.task_cpu);
+
+            data[tostring(thread_rate.tid)] = rate;
+        }
+
+        
     }
 
     (*progresses_json)["data"] = data;
