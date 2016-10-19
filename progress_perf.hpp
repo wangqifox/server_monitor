@@ -69,7 +69,7 @@ public:
 
     time_t getTime() {
         return t;
-    }
+    } 
 
     unsigned int getPid() {
         return pid;
