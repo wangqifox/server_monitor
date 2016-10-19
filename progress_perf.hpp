@@ -30,24 +30,32 @@ protected:
     void readCmdLine() {
         ifstream in(cmdlinefile);
         if(in) {
-            string line;
-            getline(in, line);
-            replace(line.begin(), line.end(), '\0', ' ');
-            cmdline = line;
+            try {
+                string line;
+                getline(in, line);
+                replace(line.begin(), line.end(), '\0', ' ');
+                cmdline = line;
+            } catch (const std::exception& e) {
+                cout << e.what() << endl;
+            }
         }
     }
 
     void readPerf() {
         ifstream in(statfile);
         if(in) {
-            string line;
-            getline(in, line);
-            vector<string> words = Util::getWords(line);
-            task_state = words[2];
-            utime = stoull(words[13]);
-            stime = stoull(words[14]);
-            rss = stoull(words[23]);
-            task_cpu = atoi(words[38].c_str());
+            try {
+                string line;
+                getline(in, line);
+                vector<string> words = Util::getWords(line);
+                task_state = words.at(2);
+                utime = stoull(words.at(13));
+                stime = stoull(words.at(14));
+                rss = stoull(words.at(23));
+                task_cpu = atoi(words.at(38).c_str());
+            } catch (const std::exception& e) {
+                cout << e.what() << endl;
+            }
         }
     }
 public:
@@ -174,7 +182,7 @@ public:
     string cmdline;
     string task_state;
     unsigned long long rss;
-    int task_cpu; 
+    int task_cpu;
 
     Rate(Perf* perf) {
         pid = perf->getPid();
@@ -232,20 +240,24 @@ private:
         ifstream in(CPUFILE);
         string line;
         if(in) {
-            getline(in, line);
-            vector<string> words = Util::getWords(line);
-            if(words[0].find("cpu") == 0) {
-                user = stoull(words[1]);
-                nice = stoull(words[2]);
-                system = stoull(words[3]);
-                idle = stoull(words[4]);
-                iowait = stoull(words[5]);
-                irq = stoull(words[6]);
-                softirq = stoull(words[7]);
-                steal = stoull(words[8]);
+            try {
+                getline(in, line);
+                vector<string> words = Util::getWords(line);
+                if(words.at(0).find("cpu") == 0) {
+                    user = stoull(words.at(1));
+                    nice = stoull(words.at(2));
+                    system = stoull(words.at(3));
+                    idle = stoull(words.at(4));
+                    iowait = stoull(words.at(5));
+                    irq = stoull(words.at(6));
+                    softirq = stoull(words.at(7));
+                    steal = stoull(words.at(8));
 
-                if(words.size() >= 10) guest = stoull(words[9]);
-                if(words.size() >= 11) guest_nice = stoull(words[10]);
+                    if(words.size() >= 10) guest = stoull(words.at(9));
+                    if(words.size() >= 11) guest_nice = stoull(words.at(10));
+                }
+            } catch (const std::exception& e) {
+                cout << e.what() << endl;
             }
         }
         return user + nice + system + idle + iowait + irq + softirq + steal + guest + guest_nice;
@@ -320,12 +332,6 @@ public:
                 unsigned long long progress_cputime_diff = *(this_progress_perf) - *(other_progress_perf);
                 progress_rate.rate = progress_cputime_diff * Util::getCpuCount() / (cputime_diff * 1.0);
 
-                // if (progress_rate.cmdline.find("monitor") < progress_rate.cmdline.length()) {
-                //     cout << this_progress_perf->getTime() << " " << progresses_perf.progresses_map[pid]->getTime() << endl;
-                //     cout << this_progress_perf->getCputime() << " " << progresses_perf.progresses_map[pid]->getCputime() << endl;
-                //     cout << progress_cputime_diff << " " << Util::getCpuCount() << " " << cputime_diff;
-                // }
-
                 map<unsigned int, TaskPerf*> this_progress_theads = this_progress_perf->threads;
                 map<unsigned int, TaskPerf*> other_progress_theads = other_progress_perf->threads;
                 for (auto it2 = this_progress_theads.begin(); it2 != this_progress_theads.end(); it2++) {
@@ -346,10 +352,6 @@ public:
                 progress_rate.rate = this_progress_perf->getCputime() * Util::getCpuCount() / (cputime_diff * 1.0);
             }
 
-
-            // if (progress_rate.cmdline.find("monitor") < progress_rate.cmdline.length()) {
-            //     cout << progress_rate.pid << " " << progress_rate.cmdline << " " << progress_rate.rate << endl;
-            // }
             progresses_rate.insert(pair<unsigned int, ProgressRate>(pid, progress_rate));
         }
 

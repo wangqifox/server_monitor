@@ -13,7 +13,7 @@
 #include "post_data.h"
 using namespace std;
 
-const static string VERSION = "version 1.0";
+const static string VERSION = "version 1.2";
 
 void start_server(int port, int delay) {
     WebsocketServer* websocket_server;
