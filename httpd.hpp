@@ -157,7 +157,7 @@ private:
     }
 
     void serve_file(int client, const char *filename) {
-        // printf("%s\n", filename);
+        printf("%s\n", filename);
         FILE *resource = NULL;
         int numchars = 1;
         char buf[1024];
