@@ -222,6 +222,8 @@ private:
             }
         }
 
+        // printf("%s\n", url);
+
         sprintf(path, "static%s", url);
         if(path[strlen(path) - 1] == '/')
             strcat(path, "index.html");
@@ -277,7 +279,7 @@ public:
         socklen_t client_name_len = sizeof(client_name);
 
         server_sock = startup(port);
-        printf("httpd running on port %d\n", port);
+        printf("httpd listening on port %d\n", port);
 
         while(1) {
             client_sock = accept(server_sock, (struct sockaddr *)&client_name, &client_name_len);

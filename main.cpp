@@ -13,13 +13,13 @@
 #include "post_data.h"
 using namespace std;
 
-const static string VERSION = "version 1.2";
+const static string VERSION = "version 1.3";
 
 void start_server(int port, int delay) {
     WebsocketServer* websocket_server;
     try {
         websocket_server = new WebsocketServer(port);
-        cout << "listening " << port << endl;
+        cout << "websocket listening on port " << port << endl;
     }catch(const std::exception& e) {
         std::cout << "WebsocketServer \"" << e.what() << "\"\n";
     }
