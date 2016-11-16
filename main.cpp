@@ -24,10 +24,16 @@ void start_server(int port, int delay) {
         std::cout << "WebsocketServer \"" << e.what() << "\"\n";
     }
 
+    // 所有数据本地缓存
     PerfData* perf_data = new PerfData();
 
+    // 流量数据
     TrafficSniffer* sniffer = new TrafficSniffer(perf_data);
+
+    // 数据存储
     PostData* post_data = new PostData(websocket_server, perf_data);
+
+    // 
     HttpServer* http_server = new HttpServer(port+1);
 
     thread sniffer_thread;
@@ -37,8 +43,10 @@ void start_server(int port, int delay) {
     thread http_thread;
 
     try {
+        // 流量
         sniffer_thread = thread(bind(&TrafficSniffer::start_sniffer, sniffer));
 
+        // 
         post_thread = thread(bind(&PostData::start, post_data));
 
         proc_thread = thread(start_proc, perf_data, delay);
