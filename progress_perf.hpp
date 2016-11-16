@@ -45,9 +45,9 @@ protected:
         ifstream in(statfile);
         if(in) {
             try {
-                string line;
-                getline(in, line);
-                vector<string> words = Util::getWords(line);
+                string* line = new string();
+                getline(in, *line);
+                vector<string> words = Util::getWords(*line);
                 task_state = words.at(2);
                 utime = stoull(words.at(13));
                 stime = stoull(words.at(14));
